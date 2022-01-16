@@ -28,7 +28,7 @@ module.exports = () => {
         process.env.RAZZLE_GOOGLE_ANALYTICS_TRACKING_ID,
     },
     experimental: {
-      reactMode: 'concurrent',
+      reactRoot: 'concurrent',
     },
     async rewrites() {
       return [
