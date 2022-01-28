@@ -5347,10 +5347,10 @@ grommet-icons@^4.2.0:
   dependencies:
     grommet-styles "^0.2.0"
 
-grommet-icons@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/grommet-icons/-/grommet-icons-4.4.0.tgz#6503a33ca29e3c9d89ba56ef1b2bc786222e62a7"
-  integrity sha512-uOc3rsgIBVOm/iuN8dj2lKuBq0uhIPYxH84zDoY0jrJZLjcVH1bHUQLlv0R/e9oB/pCFYEBse1mnvps+f3ylmw==
+grommet-icons@^4.7.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/grommet-icons/-/grommet-icons-4.7.0.tgz#1d537b2bdc507be07d5643309d433bbe1464c5b6"
+  integrity sha512-ptw8x86Age/Yz6SplCLtJ8q1z/4ZLktMruCOnE6oTgc7hcIV/8ieOucTrLbu+PDi7rKxoP321O3OG3Zo/3qXjw==
   dependencies:
     grommet-styles "^0.2.0"
 
@@ -5358,6 +5358,11 @@ grommet-styles@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/grommet-styles/-/grommet-styles-0.2.0.tgz#b2eac2b7e2747cb523434d21728ce5234f8ce4f4"
   integrity sha512-0OMSYuGeyifYKpg4Gv2HzL8rUdd0ddnJ5LbCBKgDuloC71XIwr9g/Fxa6rs737MbPV7OZ4pEm4wvrjH4epzf1A==
+
+grommet-theme-hpe@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/grommet-theme-hpe/-/grommet-theme-hpe-2.3.0.tgz#831e7dd233f559d4df5e3068401eab8206563a0b"
+  integrity sha512-NxbeyRySFVDqY+h9iOApic7jP97Xf2hZQaRqIlfaK7KYisaz7Qa1/vONukN1BDVwBQRGLuvKBoOdJ22/rkM+4g==
 
 grommet@2.15.0:
   version "2.15.0"
