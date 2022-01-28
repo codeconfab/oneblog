@@ -261,7 +261,7 @@ export function PostBox({children}: {children: React.Node}) {
     <Box
       pad="medium"
       style={{
-        maxWidth: 704,
+        maxWidth: 1704,
         width: '100%',
         borderRadius: 2,
       }}>
