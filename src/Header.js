@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import {Box, Heading} from 'grommet';
 import Avatar from './Avatar';
 import Link from 'next/link';
@@ -7,49 +7,55 @@ import ConfigContext from './ConfigContext';
 import {PostBox} from './Post';
 import {useRouter} from 'next/router';
 
-function Header({gitHub, adminLinks}) {
-  const {config} = React.useContext(ConfigContext);
-  const {pathname} = useRouter();
+import styled from 'styled-components';
+import {
+  Button,
+  Header,
+  Keyboard,
+  ResponsiveContext,
+  Text,
+  TextInput,
+} from 'grommet';
+import { Search as SearchIcon, Nodes } from 'grommet-icons';
+
+const StyledTextInput = styled(TextInput).attrs(() => ({
+  'aria-labelledby': 'search-icon-example',
+}))``;
+
+function AvatarHeader({gitHub, adminLinks}) {
+  const {config} = useContext(ConfigContext);
 
   return (
-    <>
-      <Box margin="medium" style={{position: 'absolute', top: 0, right: 0}}>
-        <Avatar gitHub={gitHub} adminLinks={adminLinks} />
-      </Box>
-      <Box
-        pad={{horizontal: 'medium'}}
-        style={{
-          maxWidth: 704,
-          width: '100%',
-        }}>
-        <Box
-          style={{maxWidth: 704, width: '100%'}}
-          pad={{top: 'medium', horizontal: 'medium'}}
-          border={{
-            size: 'xsmall',
-            side: 'bottom',
-            color: 'rgba(0,0,0,0.1)',
-          }}>
-          <Heading style={{marginTop: 0}} level={1}>
-            <Link href="/">
-              <a
-                style={
-                  pathname === '/'
-                    ? {
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        cursor: 'auto',
-                      }
-                    : {color: 'inherit'}
-                }>
-                {config.title || 'OneBlog'}
-              </a>
-            </Link>
-          </Heading>
-        </Box>
-      </Box>
-    </>
+    <Box margin="medium">
+      <Header fill="horizontal">
+        <Link href="/">
+          <a>
+            <Button>
+              <Box
+                direction="row"
+                align="start"
+                gap="medium"
+                // pad maintains accessible hit target
+                // non-responsive maintains same dimensions for mobile
+                pad={{ vertical: 'small' }}
+                responsive={false}
+              >
+                <Box direction="row" gap="xsmall" wrap>
+                  <Nodes />
+                  <Text color="text-strong" weight="bold">
+                    {config.title || 'OneBlog'}
+                  </Text>
+                </Box>
+              </Box>
+            </Button>
+          </a>
+        </Link>
+        <Button>
+          <Avatar background="background-contrast" gitHub={gitHub} adminLinks={adminLinks} />
+        </Button>
+      </Header>
+    </Box>
   );
-}
+};
 
-export default Header;
+export default AvatarHeader;
