@@ -380,7 +380,7 @@ export const ReactionBar = ({
             />
           </span>
         </Tippy>
-        <Box direction="row" style={{overflowY: 'scroll'}}>
+        <Box direction="row" style={{overflowY: 'auto'}}>
           {usedReactions.map((g) => {
             const total = g.users.totalCount;
             const reactors = [];
