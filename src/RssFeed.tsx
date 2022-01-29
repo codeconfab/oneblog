@@ -9,7 +9,7 @@ import { RssMarkdownRenderer } from "./MarkdownRenderer";
 import { ServerStyleSheet } from "styled-components";
 import inlineCss from "inline-css/lib/inline-css";
 import { Grommet } from "grommet/components/Grommet";
-import appCss from "./App.css";
+import appCss from "./AppCss.preval";
 import config from "./config";
 import type { RssFeed_QueryResponse } from "./__generated__/RssFeed_Query.graphql";
 import theme from "./lib/theme";
