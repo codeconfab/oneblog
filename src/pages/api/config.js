@@ -2,7 +2,7 @@
 
 import Config from '../../config';
 
-export default (req: any, res: any) => {
+const ConfigHandler = (req: any, res: any) => {
   res.setHeader('access-control-allow-origin', '*');
   res.json({
     version: '1.0.0',
@@ -14,3 +14,5 @@ export default (req: any, res: any) => {
     description: Config.description,
   });
 };
+
+export default ConfigHandler;

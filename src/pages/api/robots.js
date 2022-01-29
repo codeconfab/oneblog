@@ -1,7 +1,7 @@
 import appConfig from '../../config';
 import useBasePath from '../../lib/useBasePath';
 
-export default (req, res) => {
+const Robots = (req, res) => {
   const basePath = useBasePath();
   let siteHostname = appConfig.siteHostname;
 
@@ -24,3 +24,5 @@ Sitemap: ${siteHostname}${basePath}/sitemap.xml
 
   res.status(200).send(body);
 };
+
+export default Robots;

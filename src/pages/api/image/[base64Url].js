@@ -6,8 +6,10 @@ export const config = {
   },
 };
 
-export default async (req, res) => {
+const Image = async (req, res) => {
   res.set = res.setHeader;
   req.params = req.query;
   return await imageProxy(req, res);
 };
+
+export default Image;

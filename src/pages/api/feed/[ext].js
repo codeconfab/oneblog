@@ -9,7 +9,7 @@ export const config = {
 
 const SUPPORTED_FEED_EXTENSIONS = ['rss', 'atom', 'json'];
 
-export default async (req, res) => {
+const Feed = async (req, res) => {
   const extension = req.query.ext;
   if (!SUPPORTED_FEED_EXTENSIONS.includes(extension)) {
     res
@@ -35,3 +35,5 @@ export default async (req, res) => {
   );
   res.status(200).send(body);
 };
+
+export default Feed;

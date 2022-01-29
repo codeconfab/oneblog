@@ -7,7 +7,7 @@ export const config = {
   },
 };
 
-export default async (req, res) => {
+const Sitemap = async (req, res) => {
   let siteHostname = appConfig.siteHostname;
 
   if (!siteHostname) {
@@ -25,3 +25,5 @@ export default async (req, res) => {
   res.setHeader('Content-Type', 'application/xml');
   res.status(200).send(sitemap);
 };
+
+export default Sitemap;

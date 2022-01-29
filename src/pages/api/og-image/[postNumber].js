@@ -6,8 +6,10 @@ export const config = {
   },
 };
 
-export default async (req, res) => {
+const ogImageHandler = async (req, res) => {
   res.set = res.setHeader;
   req.params = req.query;
   return ogImage(req, res);
 };
+
+export default ogImageHandler;

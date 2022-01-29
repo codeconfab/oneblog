@@ -6,8 +6,10 @@ export const config = {
   },
 };
 
-export default (req, res) => {
+const firstFrameHandler = (req, res) => {
   res.set = res.setHeader;
   req.params = req.query;
   return firstFrame(req, res);
 };
+
+export default firstFrameHandler;
