@@ -73,6 +73,7 @@
     "prettier": "^2.1.2",
     "razzle": "^3.0.0",
     "relay-compiler": "^8.0.0",
+    "relay-compiler-language-typescript": "^15.0.0",
     "relay-test-utils": "^8.0.0",
     "require-times": "^1.1.0",
     "source-map-explorer": "^2.0.1",
