@@ -66,7 +66,7 @@
     "babel-eslint": "10.x",
     "babel-plugin-macros": "^2.6.1",
     "babel-plugin-relay": "^8.0.0",
-    "eslint": "6.x",
+    "eslint": "^8.8.0",
     "eslint-config-react-app": "^5.2.1",
     "eslint-plugin-flowtype": "4.x",
     "eslint-plugin-import": "2.x",
