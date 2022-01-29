@@ -1,4 +1,7 @@
-module.exports = () => {
+const createNextPluginPreval = require('next-plugin-preval/config');
+const withNextPluginPreval = createNextPluginPreval();
+
+module.exports = withNextPluginPreval(() => {
   const opts = {
     basePath: process.env.BASE_PATH,
     env: {
@@ -51,4 +54,4 @@ module.exports = () => {
     opts.target = 'serverless';
   }
   return opts;
-};
+});
