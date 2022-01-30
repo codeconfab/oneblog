@@ -170,7 +170,7 @@ export const ogImage = async (req: any, res: any) => {
     const avatarUrl = issue?.assignees?.nodes?.[0]?.avatarUrl;
 
     if (avatarUrl) {
-      return await proxyImage(res, avatarUrl);
+      return await proxyImage(res, new URL(avatarUrl));
     } else {
       res.status(500);
       res.send("Error");
