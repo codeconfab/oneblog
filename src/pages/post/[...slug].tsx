@@ -1,38 +1,41 @@
-// @flow
-
-import React from 'react';
-import {fetchQuery} from 'react-relay/hooks';
-import {useRouter} from 'next/router';
-import {query, PostRoot} from '../../PostRoot';
-import {getStaticPaths as generateStaticPaths} from '../../staticPaths';
-import {createEnvironment} from '../../Environment';
-import DefaultErrorPage from 'next/error';
-import {tokenInfosFromMarkdowns} from '../../lib/codeHighlight';
-import config from '../../config';
-
+import React from "react";
+import { fetchQuery } from "react-relay/hooks";
+import { useRouter } from "next/router";
+import { query, PostRoot } from "../../PostRoot";
+import { getStaticPaths as generateStaticPaths } from "../../staticPaths";
+import { createEnvironment } from "../../Environment";
+import DefaultErrorPage from "next/error";
+import { tokenInfosFromMarkdowns } from "../../lib/codeHighlight";
+import config from "../../config";
 export async function getStaticProps(context: any) {
   let issueNumber;
   const issueNumberString = context.params.slug[0];
+
   if (issueNumberString) {
     issueNumber = parseInt(issueNumberString, 10);
   }
+
   if (!issueNumber) {
-    return {props: {}};
+    return {
+      props: {}
+    };
   }
+
   const markdowns = [];
   const environment = createEnvironment({
     registerMarkdown: function (m) {
       markdowns.push(m);
-    },
+    }
   });
-  await fetchQuery(environment, query, {issueNumber}).toPromise();
-
+  await fetchQuery(environment, query, {
+    issueNumber
+  }).toPromise();
   let tokenInfos = {};
 
   try {
     tokenInfos = await tokenInfosFromMarkdowns({
       markdowns,
-      theme: config.codeTheme,
+      theme: config.codeTheme
     });
   } catch (e) {
     console.error('Error fetching tokenInfos for highlighting code', e);
@@ -43,27 +46,30 @@ export async function getStaticProps(context: any) {
     props: {
       issueNumber,
       initialRecords: environment.getStore().getSource().toJSON(),
-      tokenInfos,
-    },
+      tokenInfos
+    }
   };
 }
-
 export async function getStaticPaths() {
   const paths = await generateStaticPaths();
   return {
     paths,
-    fallback: 'blocking',
+    fallback: 'blocking'
   };
 }
 
-const Page = ({issueNumber: staticIssueNumber}: {issueNumber: ?number}) => {
+const Page = ({
+  issueNumber: staticIssueNumber
+}: {
+  issueNumber: number | null | undefined;
+}) => {
   const {
     isFallback,
-    query: {slug},
+    query: {
+      slug
+    }
   } = useRouter();
-
-  const issueNumber =
-    staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
+  const issueNumber = staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
   if (!issueNumber) {
     if (isFallback) {

@@ -1,9 +1,8 @@
-import {imageProxy} from '../../../imageProxy';
-
+import { imageProxy } from "../../../imageProxy";
 export const config = {
   api: {
-    externalResolver: true,
-  },
+    externalResolver: true
+  }
 };
 
 const Image = async (req, res) => {
