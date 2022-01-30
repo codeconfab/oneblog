@@ -7,8 +7,8 @@ const ConfigContext = React.createContext<{
   updateConfig: (arg0: $Shape<Config>) => void;
 }>({
   config,
-  updateConfig: config => {
-    console.warn('updateConfig not implemented');
-  }
+  updateConfig: (config) => {
+    console.warn("updateConfig not implemented");
+  },
 });
 export default ConfigContext;

@@ -1,8 +1,18 @@
 import React from "react";
-import { Environment, Network, RecordSource, Store, DefaultHandlerProvider, stableCopy } from "relay-runtime";
+import {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
+  DefaultHandlerProvider,
+  stableCopy,
+} from "relay-runtime";
 import config from "./config";
 import OneGraphAuth from "onegraph-auth";
-import type { RecordMap, Handler } from "relay-runtime/lib/store/RelayStoreTypes";
+import type {
+  RecordMap,
+  Handler,
+} from "relay-runtime/lib/store/RelayStoreTypes";
 import type { NotificationContextType } from "./Notifications";
 
 class AuthDummy {
@@ -25,61 +35,68 @@ class AuthDummy {
   destroy() {
     return null;
   }
-
 }
 
-export const onegraphAuth = typeof window !== 'undefined' ? new OneGraphAuth({
-  appId: config.appId
-}) : new AuthDummy();
+export const onegraphAuth =
+  typeof window !== "undefined"
+    ? new OneGraphAuth({
+        appId: config.appId,
+      })
+    : new AuthDummy();
 
-async function sendRequest({
-  onegraphAuth,
-  operation,
-  variables
-}) {
-  if (operation.operationKind === 'query' && operation.id && // Bypass the cache if we're logged in. The CDN won't cache content or serve
-  // cached content when there is an Authorization header, but the browser may.
-  Object.keys(onegraphAuth.authHeaders()).length === 0) {
-    const url = new URL('https://serve.onegraph.com/graphql');
-    url.searchParams.set('app_id', config.appId);
-    url.searchParams.set('doc_id', operation.id);
-    url.searchParams.set('variables', JSON.stringify(stableCopy(variables)));
+async function sendRequest({ onegraphAuth, operation, variables }) {
+  if (
+    operation.operationKind === "query" &&
+    operation.id && // Bypass the cache if we're logged in. The CDN won't cache content or serve
+    // cached content when there is an Authorization header, but the browser may.
+    Object.keys(onegraphAuth.authHeaders()).length === 0
+  ) {
+    const url = new URL("https://serve.onegraph.com/graphql");
+    url.searchParams.set("app_id", config.appId);
+    url.searchParams.set("doc_id", operation.id);
+    url.searchParams.set("variables", JSON.stringify(stableCopy(variables)));
     const response = await fetch(url.toString(), {
-      method: 'GET',
-      mode: 'cors',
+      method: "GET",
+      mode: "cors",
       headers: {
-        Accept: 'application/json',
-        ...onegraphAuth.authHeaders()
-      }
+        Accept: "application/json",
+        ...onegraphAuth.authHeaders(),
+      },
     });
     return await response.json();
   } else {
     const requestBody = JSON.stringify({
       doc_id: operation.id,
       query: operation.text,
-      variables
+      variables,
     });
-    const response = await fetch('https://serve.onegraph.com/graphql?app_id=' + config.appId, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-        ...onegraphAuth.authHeaders()
+    const response = await fetch(
+      "https://serve.onegraph.com/graphql?app_id=" + config.appId,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          ...onegraphAuth.authHeaders(),
+        },
+        body: requestBody,
       },
-      body: requestBody
-    });
+    );
     return await response.json();
   }
 }
 
 async function checkifCorsRequired(): Promise<boolean> {
   try {
-    const response = await fetch('https://serve.onegraph.com/is-cors-origin-allowed?app_id=' + config.appId);
+    const response = await fetch(
+      "https://serve.onegraph.com/is-cors-origin-allowed?app_id=" +
+        config.appId,
+    );
     const json = await response.json();
     // Default to false on any error
     return json.allowed === false;
   } catch (e) {
-    console.error('Error checking if CORS required');
+    console.error("Error checking if CORS required");
     return false;
   }
 }
@@ -87,9 +104,7 @@ async function checkifCorsRequired(): Promise<boolean> {
 // Fix problem where relay gets nonnull `data` field and does weird things to the cache
 function maybeNullOutQuery(json) {
   if (json.data && !json.data.gitHub) {
-    return { ...json,
-      data: null
-    };
+    return { ...json, data: null };
   }
 
   return json;
@@ -116,7 +131,7 @@ function createFetchQuery(opts: Opts | null | undefined) {
       const json = await sendRequest({
         operation,
         variables,
-        onegraphAuth
+        onegraphAuth,
       });
       // eslint-disable-next-line no-unused-expressions
       opts?.notificationContext?.clearCorsViolation();
@@ -129,19 +144,19 @@ function createFetchQuery(opts: Opts | null | undefined) {
           // @ts-ignore
           headers: {},
           operation,
-          variables
+          variables,
         });
         return maybeNullOutQuery(newJson);
       } else {
         return maybeNullOutQuery(json);
       }
     } catch (e) {
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         const isCorsRequired = await checkifCorsRequired();
 
         if (isCorsRequired) {
-          const error = new Error('Missing CORS origin.');
-          (error as any).type = 'missing-cors';
+          const error = new Error("Missing CORS origin.");
+          (error as any).type = "missing-cors";
           // eslint-disable-next-line no-unused-expressions
           opts?.notificationContext?.setCorsViolation();
           throw error;
@@ -161,9 +176,8 @@ const isClientFetchedHandler = {
       return;
     }
 
-    record.setValue(typeof window !== 'undefined', payload.handleKey);
-  }
-
+    record.setValue(typeof window !== "undefined", payload.handleKey);
+  },
 };
 
 function getRegisterMarkdownHandler(opts?: Opts | null | undefined) {
@@ -177,13 +191,12 @@ function getRegisterMarkdownHandler(opts?: Opts | null | undefined) {
 
       const value = record.getValue(payload.fieldKey, payload.args);
 
-      if (value && typeof value === 'string' && opts?.registerMarkdown) {
+      if (value && typeof value === "string" && opts?.registerMarkdown) {
         opts.registerMarkdown(value);
       }
 
       record.setValue(value, payload.handleKey);
-    }
-
+    },
   };
 }
 
@@ -191,10 +204,10 @@ function createHandlerProvider(opts?: Opts | null | undefined) {
   const registerMarkdownHandler = getRegisterMarkdownHandler(opts);
   return function handlerProvider(handle: string): Handler {
     switch (handle) {
-      case 'isClientFetched':
+      case "isClientFetched":
         return isClientFetchedHandler;
 
-      case 'registerMarkdown':
+      case "registerMarkdown":
         return registerMarkdownHandler;
 
       default:
@@ -210,18 +223,24 @@ export function createEnvironment(opts?: Opts | null | undefined) {
   return new Environment({
     handlerProvider: createHandlerProvider(opts),
     network: Network.create(createFetchQuery(opts)),
-    store
+    store,
   });
 }
 let globalEnvironment;
-export function initEnvironment(initialRecords: RecordMap | null | undefined, opts?: Opts | null | undefined) {
+export function initEnvironment(
+  initialRecords: RecordMap | null | undefined,
+  opts?: Opts | null | undefined,
+) {
   const environment = globalEnvironment ?? createEnvironment(opts);
 
-  if (initialRecords && environment.getStore().getSource().getRecordIDs().length <= 1) {
+  if (
+    initialRecords &&
+    environment.getStore().getSource().getRecordIDs().length <= 1
+  ) {
     environment.getStore().publish(new RecordSource(initialRecords));
   }
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // @ts-ignore
     window._env = environment;
     globalEnvironment = environment;
@@ -229,7 +248,10 @@ export function initEnvironment(initialRecords: RecordMap | null | undefined, op
 
   return environment;
 }
-export function useEnvironment(initialRecords: RecordMap | null | undefined, opts?: Opts | null | undefined) {
+export function useEnvironment(
+  initialRecords: RecordMap | null | undefined,
+  opts?: Opts | null | undefined,
+) {
   const store = React.useRef(initEnvironment(initialRecords, opts));
   return store.current;
 }

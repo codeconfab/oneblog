@@ -48,7 +48,7 @@ let tempId = 0;
 
 function CommentInput({
   postId,
-  viewer
+  viewer,
 }: {
   postId: string;
   viewer: {
@@ -59,43 +59,53 @@ function CommentInput({
   };
 }) {
   const environment = useRelayEnvironment();
-  const {
-    error: notifyError
-  } = React.useContext(NotificationContext);
-  const {
-    loginStatus,
-    login
-  } = React.useContext(UserContext);
-  const isLoggedIn = loginStatus === 'logged-in';
-  const [comment, setComment] = React.useState('');
+  const { error: notifyError } = React.useContext(NotificationContext);
+  const { loginStatus, login } = React.useContext(UserContext);
+  const isLoggedIn = loginStatus === "logged-in";
+  const [comment, setComment] = React.useState("");
   const [saving, setSaving] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<"write" | "preview">('write');
-  const onInputChange = React.useCallback(e => {
-    setComment(e.target.value);
-  }, [setComment]);
+  const [activeTab, setActiveTab] = React.useState<"write" | "preview">(
+    "write",
+  );
+  const onInputChange = React.useCallback(
+    (e) => {
+      setComment(e.target.value);
+    },
+    [setComment],
+  );
 
   const saveComment = () => {
     setSaving(true);
 
     const updater = (store, data) => {
-      const newComment = store.get(data.gitHub.addComment.commentEdge.node.__id);
+      const newComment = store.get(
+        data.gitHub.addComment.commentEdge.node.__id,
+      );
       const post = store.get(postId);
 
       if (newComment && post) {
-        const comments = ConnectionHandler.getConnection(post, 'Comments_post_comments');
+        const comments = ConnectionHandler.getConnection(
+          post,
+          "Comments_post_comments",
+        );
 
         if (comments) {
-          const edge = ConnectionHandler.createEdge(store, comments, newComment, 'GitHubIssueComment');
+          const edge = ConnectionHandler.createEdge(
+            store,
+            comments,
+            newComment,
+            "GitHubIssueComment",
+          );
           ConnectionHandler.insertEdgeAfter(comments, edge);
         }
 
-        const count = post.getLinkedRecord('comments')?.getValue('totalCount');
+        const count = post.getLinkedRecord("comments")?.getValue("totalCount");
 
         if (Number.isInteger(count)) {
           // $FlowFixMe: count has been checked by isInteger
           const newCount = count + 1;
           // eslint-disable-next-line no-unused-expressions
-          post.getLinkedRecord('comments')?.setValue(newCount, 'totalCount');
+          post.getLinkedRecord("comments")?.setValue(newCount, "totalCount");
         }
       }
     };
@@ -105,16 +115,16 @@ function CommentInput({
       variables: {
         input: {
           body: comment,
-          subjectId: postId
-        }
+          subjectId: postId,
+        },
       },
       onCompleted: () => {
         setSaving(false);
-        setComment('');
+        setComment("");
       },
-      onError: err => {
-        console.error('Error saving commeent', err);
-        notifyError('Error saving comment. Please try again.');
+      onError: (err) => {
+        console.error("Error saving commeent", err);
+        notifyError("Error saving comment. Please try again.");
         setSaving(false);
       },
       optimisticResponse: {
@@ -126,84 +136,126 @@ function CommentInput({
                 body: comment,
                 createdViaEmail: false,
                 author: {
-                  __typename: 'GitHubUser',
+                  __typename: "GitHubUser",
                   name: viewer.name,
                   avatarUrl: viewer.avatarUrl,
                   login: viewer.login,
-                  url: viewer.url
+                  url: viewer.url,
                 },
                 createdAt: new Date().toString(),
-                reactionGroups: []
-              }
-            }
-          }
-        }
+                reactionGroups: [],
+              },
+            },
+          },
+        },
       },
       optimisticUpdater: updater,
-      updater: updater
+      updater: updater,
     });
   };
 
-  return <PostBox>
-      <Stack guidingChild="first" interactiveChild={isLoggedIn ? 'first' : 'last'} anchor="center">
-        <Box style={{
-        opacity: isLoggedIn ? 1 : 0.3
-      }}>
-          <Box height={{
-          min: 'small'
-        }}>
-            <Box pad="small" direction="row" gap="medium">
-              <Button plain focusIndicator={false} label={<Box pad={{
-              bottom: 'xsmall'
-            }} border={{
-              color: activeTab === 'write' ? 'black' : 'brand',
-              side: 'bottom',
-              size: 'small'
-            }}>
-                    <Text size="small">Write</Text>
-                  </Box>} onClick={() => setActiveTab('write')} />
-              <Button plain focusIndicator={false} label={<Box pad={{
-              bottom: 'xsmall'
-            }} border={{
-              color: activeTab === 'preview' ? 'black' : 'brand',
-              side: 'bottom',
-              size: 'small'
-            }}>
-                    <Text size="small">Preview</Text>
-                  </Box>} onClick={() => setActiveTab('preview')} />
-            </Box>
-            {activeTab === 'write' ? <Box pad="small" height="small">
-                <TextArea focusIndicator={false} disabled={saving} placeholder="Leave a comment (supports markdown)" value={comment} style={{
-              height: '100%',
-              fontWeight: 'normal'
-            }} onChange={onInputChange} />
-              </Box> : <Box pad="small" height={{
-            min: 'small'
+  return (
+    <PostBox>
+      <Stack
+        guidingChild="first"
+        interactiveChild={isLoggedIn ? "first" : "last"}
+        anchor="center">
+        <Box
+          style={{
+            opacity: isLoggedIn ? 1 : 0.3,
           }}>
-                <MarkdownRenderer trustedInput={false} source={comment.trim() ? comment : 'Nothing to preview.'} />
-              </Box>}
+          <Box
+            height={{
+              min: "small",
+            }}>
+            <Box pad="small" direction="row" gap="medium">
+              <Button
+                plain
+                focusIndicator={false}
+                label={
+                  <Box
+                    pad={{
+                      bottom: "xsmall",
+                    }}
+                    border={{
+                      color: activeTab === "write" ? "black" : "brand",
+                      side: "bottom",
+                      size: "small",
+                    }}>
+                    <Text size="small">Write</Text>
+                  </Box>
+                }
+                onClick={() => setActiveTab("write")}
+              />
+              <Button
+                plain
+                focusIndicator={false}
+                label={
+                  <Box
+                    pad={{
+                      bottom: "xsmall",
+                    }}
+                    border={{
+                      color: activeTab === "preview" ? "black" : "brand",
+                      side: "bottom",
+                      size: "small",
+                    }}>
+                    <Text size="small">Preview</Text>
+                  </Box>
+                }
+                onClick={() => setActiveTab("preview")}
+              />
+            </Box>
+            {activeTab === "write" ? (
+              <Box pad="small" height="small">
+                <TextArea
+                  focusIndicator={false}
+                  disabled={saving}
+                  placeholder="Leave a comment (supports markdown)"
+                  value={comment}
+                  style={{
+                    height: "100%",
+                    fontWeight: "normal",
+                  }}
+                  onChange={onInputChange}
+                />
+              </Box>
+            ) : (
+              <Box
+                pad="small"
+                height={{
+                  min: "small",
+                }}>
+                <MarkdownRenderer
+                  trustedInput={false}
+                  source={comment.trim() ? comment : "Nothing to preview."}
+                />
+              </Box>
+            )}
           </Box>
           <Box>
             <Box pad="small" align="end">
-              <Button fill={false} label="Comment" onClick={saveComment} disabled={saving} />
+              <Button
+                fill={false}
+                label="Comment"
+                onClick={saveComment}
+                disabled={saving}
+              />
             </Box>
           </Box>
         </Box>
-        <Box style={{
-        visibility: isLoggedIn ? 'hidden' : 'visible'
-      }}>
+        <Box
+          style={{
+            visibility: isLoggedIn ? "hidden" : "visible",
+          }}>
           <GitHubLoginButton onClick={login} label="Log in with GitHub" />
         </Box>
       </Stack>
-    </PostBox>;
+    </PostBox>
+  );
 }
 
-function Comments({
-  post,
-  relay,
-  postId,
-  viewer
-}: Props) {
+function Comments({ post, relay, postId, viewer }: Props) {
   const comments = [];
 
   for (const edge of post.comments.edges || []) {
@@ -212,21 +264,25 @@ function Comments({
     }
   }
 
-  return <Box id="comments">
-      {comments.map(comment => {
-      return <Comment key={comment.id} comment={comment} />;
-    })}
+  return (
+    <Box id="comments">
+      {comments.map((comment) => {
+        return <Comment key={comment.id} comment={comment} />;
+      })}
       <CommentInput viewer={viewer} postId={postId} />
       <Box height="xsmall" />
-    </Box>;
+    </Box>
+  );
 }
 
-export default createPaginationContainer(Comments, {
-  post: graphql`
+export default createPaginationContainer(
+  Comments,
+  {
+    post: graphql`
       fragment Comments_post on GitHubIssue
       @argumentDefinitions(
-        count: {type: "Int", defaultValue: 100}
-        cursor: {type: "String"}
+        count: { type: "Int", defaultValue: 100 }
+        cursor: { type: "String" }
       ) {
         comments(first: $count, after: $cursor)
           @connection(key: "Comments_post_comments") {
@@ -238,27 +294,25 @@ export default createPaginationContainer(Comments, {
           }
         }
       }
-    `
-}, {
-  direction: 'forward',
-
-  getConnectionFromProps(props) {
-    return props.comments;
+    `,
   },
+  {
+    direction: "forward",
 
-  getVariables(props, {
-    count,
-    cursor
-  }, fragmentVariables) {
-    return {
-      count: count,
-      cursor,
-      // XXX: fix
-      issueNumber: props.issue.number
-    };
-  },
+    getConnectionFromProps(props) {
+      return props.comments;
+    },
 
-  query: graphql`
+    getVariables(props, { count, cursor }, fragmentVariables) {
+      return {
+        count: count,
+        cursor,
+        // XXX: fix
+        issueNumber: props.issue.number,
+      };
+    },
+
+    query: graphql`
       # repoName and repoOwner provided by fixedVariables
       query CommentsPaginationQuery(
         $count: Int!
@@ -268,9 +322,9 @@ export default createPaginationContainer(Comments, {
         $repoOwner: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+        accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
         freeVariables: ["count", "cursor", "issueNumber"]
-        fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+        fixedVariables: { environmentVariable: "REPOSITORY_FIXED_VARIABLES" }
         cacheSeconds: 300
       ) {
         gitHub {
@@ -282,5 +336,6 @@ export default createPaginationContainer(Comments, {
           }
         }
       }
-    `
-});
+    `,
+  },
+);

@@ -22,7 +22,7 @@ function AppComponent({
   pageProps,
   indexPageMemo,
   indexPageScrollPos,
-  isIndexPage
+  isIndexPage,
 }: any) {
   React.useEffect(() => {
     if (isIndexPage && indexPageScrollPos.current) {
@@ -32,11 +32,13 @@ function AppComponent({
   let page;
 
   if (!isIndexPage || !indexPageMemo.current) {
-    const res = <ErrorBoundary>
+    const res = (
+      <ErrorBoundary>
         <React.Suspense fallback={null}>
           <Component {...pageProps} />
         </React.Suspense>
-      </ErrorBoundary>;
+      </ErrorBoundary>
+    );
 
     if (isIndexPage) {
       indexPageMemo.current = res;
@@ -46,110 +48,136 @@ function AppComponent({
   }
 
   // Keep the index page rendered so that we don't lose any posts we loaded
-  return <>
-      <div style={{
-      display: isIndexPage ? 'block' : 'none'
-    }}>
+  return (
+    <>
+      <div
+        style={{
+          display: isIndexPage ? "block" : "none",
+        }}>
         {indexPageMemo.current}
       </div>
       {page}
-    </>;
+    </>
+  );
 }
 
-function App({
-  Component,
-  pageProps
-}: any) {
+function App({ Component, pageProps }: any) {
   const router = useRouter();
   const indexPageMemo = React.useRef();
   // Stores scroll position of the index page for better back behavior
   // Ideally we would assign the scroll pos to the history item in the stack,
   // but that doesn't appear possible with next.js
   const indexPageScrollPos = React.useRef();
-  const [loginStatus, setLoginStatus] = React.useReducer((_state, newState) => newState, 'checking');
-  const isIndexPage = router.pathname === '/';
-  const handleRouteChangeStart = React.useCallback(url => {
-    window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
+  const [loginStatus, setLoginStatus] = React.useReducer(
+    (_state, newState) => newState,
+    "checking",
+  );
+  const isIndexPage = router.pathname === "/";
+  const handleRouteChangeStart = React.useCallback(
+    (url) => {
+      window.history.scrollRestoration = url === "/" ? "manual" : "auto";
 
-    if (isIndexPage) {
-      // @ts-ignore
-      indexPageScrollPos.current = window.scrollY;
-    }
+      if (isIndexPage) {
+        // @ts-ignore
+        indexPageScrollPos.current = window.scrollY;
+      }
 
-    trk.pageview(url);
-  }, [isIndexPage, indexPageScrollPos]);
+      trk.pageview(url);
+    },
+    [isIndexPage, indexPageScrollPos],
+  );
   React.useEffect(() => {
-    router.events.on('routeChangeStart', handleRouteChangeStart);
+    router.events.on("routeChangeStart", handleRouteChangeStart);
     return () => {
-      router.events.off('routeChangeStart', handleRouteChangeStart);
+      router.events.off("routeChangeStart", handleRouteChangeStart);
     };
   }, [isIndexPage, router, handleRouteChangeStart]);
   const notificationContext = React.useContext(NotificationContext);
   const environment = useEnvironment(pageProps.initialRecords, {
-    notificationContext
+    notificationContext,
   });
 
   if (pageProps.tokenInfos) {
-    for (const {
-      code,
-      theme,
-      language,
-      tokenInfo
-    } of pageProps.tokenInfos) {
+    for (const { code, theme, language, tokenInfo } of pageProps.tokenInfos) {
       registerTokenInfo({
         code,
         theme,
         language,
-        tokenInfo
+        tokenInfo,
       });
     }
   }
 
   React.useEffect(() => {
-    Promise.all([onegraphAuth.isLoggedIn('github'), fetchQuery(environment, loginQuery, {}).toPromise().catch(e => null)]).then(([isLoggedIn]) => {
-      setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
-    }).catch(e => {
-      console.error('Error checking login status', e);
-    });
+    Promise.all([
+      onegraphAuth.isLoggedIn("github"),
+      fetchQuery(environment, loginQuery, {})
+        .toPromise()
+        .catch((e) => null),
+    ])
+      .then(([isLoggedIn]) => {
+        setLoginStatus(isLoggedIn ? "logged-in" : "logged-out");
+      })
+      .catch((e) => {
+        console.error("Error checking login status", e);
+      });
   }, [environment]);
 
   const login = () => {
-    onegraphAuth.login('github').then(() => Promise.all([onegraphAuth.isLoggedIn('github'), fetchQuery(environment, loginQuery, {}).toPromise().catch(e => null)]).then(([isLoggedIn, x]) => {
-      setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
-    }));
+    onegraphAuth.login("github").then(() =>
+      Promise.all([
+        onegraphAuth.isLoggedIn("github"),
+        fetchQuery(environment, loginQuery, {})
+          .toPromise()
+          .catch((e) => null),
+      ]).then(([isLoggedIn, x]) => {
+        setLoginStatus(isLoggedIn ? "logged-in" : "logged-out");
+      }),
+    );
   };
 
   const logout = () => {
-    onegraphAuth.logout('github').then(() => onegraphAuth.isLoggedIn('github').then(isLoggedIn => {
-      onegraphAuth.destroy();
-      setLoginStatus(isLoggedIn ? 'logged-in' : 'logged-out');
-    }));
+    onegraphAuth.logout("github").then(() =>
+      onegraphAuth.isLoggedIn("github").then((isLoggedIn) => {
+        onegraphAuth.destroy();
+        setLoginStatus(isLoggedIn ? "logged-in" : "logged-out");
+      }),
+    );
   };
 
   const [config, setConfig] = React.useState(Config);
-  return <ConfigContext.Provider value={{
-    config: config,
-    updateConfig: configShape => setConfig({ ...config,
-      ...configShape
-    })
-  }}>
+  return (
+    <ConfigContext.Provider
+      value={{
+        config: config,
+        updateConfig: (configShape) => setConfig({ ...config, ...configShape }),
+      }}>
       <RelayEnvironmentProvider environment={environment}>
         <Head />
-        <UserContext.Provider value={{
-        loginStatus,
-        login,
-        logout
-      }}>
-          <div style={{
-          position: 'relative'
-        }}>
+        <UserContext.Provider
+          value={{
+            loginStatus,
+            login,
+            logout,
+          }}>
+          <div
+            style={{
+              position: "relative",
+            }}>
             <div className="layout">
-              <AppComponent Component={Component} pageProps={pageProps} indexPageMemo={indexPageMemo} indexPageScrollPos={indexPageScrollPos} isIndexPage={isIndexPage} />
+              <AppComponent
+                Component={Component}
+                pageProps={pageProps}
+                indexPageMemo={indexPageMemo}
+                indexPageScrollPos={indexPageScrollPos}
+                isIndexPage={isIndexPage}
+              />
             </div>
           </div>
         </UserContext.Provider>
       </RelayEnvironmentProvider>
-    </ConfigContext.Provider>;
+    </ConfigContext.Provider>
+  );
 }
 
 // n.b. this won't be triggered b/c we're using concurrent mode
@@ -158,7 +186,7 @@ export function reportWebVitals({
   id,
   name,
   label,
-  value
+  value,
 }: {
   id: string;
   name: string;
@@ -167,25 +195,23 @@ export function reportWebVitals({
 }) {
   trk.event({
     action: name,
-    category: label === 'web-vital' ? 'Web Vitals' : 'Next.js custom metric',
-    value: Math.round(name === 'CLS' ? value * 1000 : value),
+    category: label === "web-vital" ? "Web Vitals" : "Next.js custom metric",
+    value: Math.round(name === "CLS" ? value * 1000 : value),
     // values must be integers,
     label: id,
     // id unique to current page load
-    nonInteraction: true // avoids affecting bounce rate.
-
+    nonInteraction: true, // avoids affecting bounce rate.
   });
 }
 
-function AppWrapper({
-  Component,
-  pageProps
-}: any) {
-  return <Grommet theme={theme}>
+function AppWrapper({ Component, pageProps }: any) {
+  return (
+    <Grommet theme={theme}>
       <NotificationContainer>
         <App Component={Component} pageProps={pageProps} />
       </NotificationContainer>
-    </Grommet>;
+    </Grommet>
+  );
 }
 
 export default AppWrapper;

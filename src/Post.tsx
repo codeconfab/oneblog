@@ -79,168 +79,197 @@ const removeReactionMutation = graphql`
   }
 `;
 
-function reactionUpdater({
-  store,
-  viewerHasReacted,
-  subjectId,
-  content
-}) {
-  const reactionGroup = store.get(subjectId)?.getLinkedRecords('reactionGroups')?.find(r => r?.getValue('content') === content);
+function reactionUpdater({ store, viewerHasReacted, subjectId, content }) {
+  const reactionGroup = store
+    .get(subjectId)
+    ?.getLinkedRecords("reactionGroups")
+    ?.find((r) => r?.getValue("content") === content);
 
   if (reactionGroup) {
-    reactionGroup.setValue(viewerHasReacted, 'viewerHasReacted');
-    const users = reactionGroup.getLinkedRecord('users', {
-      first: 11
+    reactionGroup.setValue(viewerHasReacted, "viewerHasReacted");
+    const users = reactionGroup.getLinkedRecord("users", {
+      first: 11,
     });
 
     if (users) {
-      users.setValue(Math.max(0, // $FlowFixMe
-      (users?.getValue('totalCount') ?? 0) + (viewerHasReacted ? 1 : -1)), 'totalCount');
+      users.setValue(
+        Math.max(
+          0, // $FlowFixMe
+          (users?.getValue("totalCount") ?? 0) + (viewerHasReacted ? 1 : -1),
+        ),
+        "totalCount",
+      );
     }
   }
 }
 
-async function addReaction({
-  environment,
-  content,
-  subjectId
-}) {
+async function addReaction({ environment, content, subjectId }) {
   const variables = {
     input: {
       content,
-      subjectId
-    }
+      subjectId,
+    },
   };
   return new Promise((resolve, reject) => {
     commitMutation(environment, {
       mutation: addReactionMutation,
       variables,
-      onCompleted: (response, errors) => resolve({
-        response,
-        errors
-      }),
-      onError: err => reject(err),
-      optimisticUpdater: store => reactionUpdater({
-        store,
-        viewerHasReacted: true,
-        content,
-        subjectId
-      })
+      onCompleted: (response, errors) =>
+        resolve({
+          response,
+          errors,
+        }),
+      onError: (err) => reject(err),
+      optimisticUpdater: (store) =>
+        reactionUpdater({
+          store,
+          viewerHasReacted: true,
+          content,
+          subjectId,
+        }),
     });
   });
 }
 
-async function removeReaction({
-  environment,
-  content,
-  subjectId
-}) {
+async function removeReaction({ environment, content, subjectId }) {
   const variables = {
     input: {
       content,
-      subjectId
-    }
+      subjectId,
+    },
   };
   return new Promise((resolve, reject) => {
     commitMutation(environment, {
       mutation: removeReactionMutation,
       variables,
-      onCompleted: (response, errors) => resolve({
-        response,
-        errors
-      }),
-      onError: err => reject(err),
-      optimisticUpdater: store => reactionUpdater({
-        store,
-        viewerHasReacted: false,
-        content,
-        subjectId
-      })
+      onCompleted: (response, errors) =>
+        resolve({
+          response,
+          errors,
+        }),
+      onError: (err) => reject(err),
+      optimisticUpdater: (store) =>
+        reactionUpdater({
+          store,
+          viewerHasReacted: false,
+          content,
+          subjectId,
+        }),
     });
   });
 }
 
 function emojiForContent(content) {
   switch (content) {
-    case 'THUMBS_UP':
-      return '👍';
+    case "THUMBS_UP":
+      return "👍";
 
-    case 'THUMBS_DOWN':
-      return '👎';
+    case "THUMBS_DOWN":
+      return "👎";
 
-    case 'LAUGH':
-      return '😄';
+    case "LAUGH":
+      return "😄";
 
-    case 'HOORAY':
-      return '🎉';
+    case "HOORAY":
+      return "🎉";
 
-    case 'CONFUSED':
-      return '😕';
+    case "CONFUSED":
+      return "😕";
 
-    case 'HEART':
-      return '❤️';
+    case "HEART":
+      return "❤️";
 
-    case 'ROCKET':
-      return '🚀';
+    case "ROCKET":
+      return "🚀";
 
-    case 'EYES':
-      return '👀';
+    case "EYES":
+      return "👀";
 
     default:
       return null;
   }
 }
 
-const reactions = ['THUMBS_UP', 'THUMBS_DOWN', 'LAUGH', 'HOORAY', 'CONFUSED', 'HEART', 'ROCKET', 'EYES'];
+const reactions = [
+  "THUMBS_UP",
+  "THUMBS_DOWN",
+  "LAUGH",
+  "HOORAY",
+  "CONFUSED",
+  "HEART",
+  "ROCKET",
+  "EYES",
+];
 
 const EmojiPicker = ({
   viewerReactions,
   onSelect,
   onDeselect,
   isLoggedIn,
-  login
+  login,
 }) => {
   const reactionContent = (reaction, i) => {
     const isSelected = viewerReactions.includes(reaction);
-    return <button style={{
-      width: 42,
-      height: 42,
-      cursor: 'pointer',
-      outline: 'none',
-      fontSize: 20,
-      padding: '0 5px',
-      backgroundColor: isSelected ? '#ddefff' : 'transparent',
-      border: 'none',
-      borderLeft: i === 0 ? 'none' : '1px solid #e1e4e8'
-    }} key={reaction} onClick={() => isSelected ? onDeselect(reaction) : onSelect(reaction)}>
+    return (
+      <button
+        style={{
+          width: 42,
+          height: 42,
+          cursor: "pointer",
+          outline: "none",
+          fontSize: 20,
+          padding: "0 5px",
+          backgroundColor: isSelected ? "#ddefff" : "transparent",
+          border: "none",
+          borderLeft: i === 0 ? "none" : "1px solid #e1e4e8",
+        }}
+        key={reaction}
+        onClick={() =>
+          isSelected ? onDeselect(reaction) : onSelect(reaction)
+        }>
         <span role="img">{emojiForContent(reaction)}</span>
-      </button>;
+      </button>
+    );
   };
 
-  return <Box>
+  return (
+    <Box>
       <Text margin="xsmall" textAlign="center">
         Pick your reaction
       </Text>
 
-      {isLoggedIn ? <>
-          <Box direction="row" border={{
-        color: '#e1e4e8',
-        style: 'solid',
-        size: '1px',
-        side: 'top'
-      }}>
-            {reactions.slice(0, 4).map((reaction, i) => reactionContent(reaction, i))}
+      {isLoggedIn ? (
+        <>
+          <Box
+            direction="row"
+            border={{
+              color: "#e1e4e8",
+              style: "solid",
+              size: "1px",
+              side: "top",
+            }}>
+            {reactions
+              .slice(0, 4)
+              .map((reaction, i) => reactionContent(reaction, i))}
           </Box>
-          <Box direction="row" border={{
-        color: '#e1e4e8',
-        style: 'solid',
-        size: '1px',
-        side: 'top'
-      }}>
-            {reactions.slice(4).map((reaction, i) => reactionContent(reaction, i))}
+          <Box
+            direction="row"
+            border={{
+              color: "#e1e4e8",
+              style: "solid",
+              size: "1px",
+              side: "top",
+            }}>
+            {reactions
+              .slice(4)
+              .map((reaction, i) => reactionContent(reaction, i))}
           </Box>
-        </> : <GitHubLoginButton onClick={login} />}
-    </Box>;
+        </>
+      ) : (
+        <GitHubLoginButton onClick={login} />
+      )}
+    </Box>
+  );
 };
 
 type Props = {
@@ -248,171 +277,245 @@ type Props = {
   post: Post_post;
   context: "list" | "details";
 };
-export function PostBox({
-  children
-}: {
-  children: React.ReactNode;
-}) {
-  return <Box pad="medium" style={{
-    maxWidth: 1704,
-    width: '100%',
-    borderRadius: 2
-  }}>
+export function PostBox({ children }: { children: React.ReactNode }) {
+  return (
+    <Box
+      pad="medium"
+      style={{
+        maxWidth: 1704,
+        width: "100%",
+        borderRadius: 2,
+      }}>
       {children}
-    </Box>;
+    </Box>
+  );
 }
 export const ReactionBar = ({
   reactionGroups,
   subjectId,
   pad,
-  commentsInfo
+  commentsInfo,
 }: {
   reactionGroups: any;
   subjectId: string;
   pad?: string;
-  commentsInfo?: {
-    href: string;
-    as: string;
-    count: number;
-  } | null | undefined;
+  commentsInfo?:
+    | {
+        href: string;
+        as: string;
+        count: number;
+      }
+    | null
+    | undefined;
 }) => {
   const environment = useRelayEnvironment();
-  const {
-    error: notifyError
-  } = React.useContext(NotificationContext);
+  const { error: notifyError } = React.useContext(NotificationContext);
   const [showReactionPopover, setShowReactionPopover] = React.useState(false);
   const [sourceTooltip, targetTooltip] = useSingleton();
   const [sourceAdd, targetAdd] = useSingleton();
-  const {
-    loginStatus,
-    login
-  } = React.useContext(UserContext);
-  const isLoggedIn = loginStatus === 'logged-in';
-  const usedReactions = (reactionGroups || []).filter(g => g.users.totalCount > 0).sort((a, b) => b.users.totalCount - a.users.totalCount);
-  return <Box pad={pad || 'xsmall'} direction="row" justify="between" border={{
-    size: 'xsmall',
-    side: 'top',
-    color: 'rgba(0,0,0,0.1)'
-  }}>
+  const { loginStatus, login } = React.useContext(UserContext);
+  const isLoggedIn = loginStatus === "logged-in";
+  const usedReactions = (reactionGroups || [])
+    .filter((g) => g.users.totalCount > 0)
+    .sort((a, b) => b.users.totalCount - a.users.totalCount);
+  return (
+    <Box
+      pad={pad || "xsmall"}
+      direction="row"
+      justify="between"
+      border={{
+        size: "xsmall",
+        side: "top",
+        color: "rgba(0,0,0,0.1)",
+      }}>
       <Box direction="row">
-        <Tippy singleton={sourceTooltip} arrow={false} theme="light-border" trigger="mouseenter focus click" placement="bottom" inertia={true} interactive={true} interactiveBorder={10} duration={[75, 75]} delay={500} />
-        <Tippy singleton={sourceAdd} arrow={false} theme="light-border" trigger="click" inertia={true} interactive={true} interactiveBorder={10} duration={[0, 0]} delay={0} hideOnClick={true} />
-        <Tippy singleton={targetAdd} arrow={true} content={<Box>
-              <EmojiPicker isLoggedIn={isLoggedIn} login={login} viewerReactions={usedReactions.filter(x => x.viewerHasReacted).map(x => x.content)} onDeselect={async content => {
-          // eslint-disable-next-line no-unused-expressions
-          sourceAdd?.data?.instance?.hide();
+        <Tippy
+          singleton={sourceTooltip}
+          arrow={false}
+          theme="light-border"
+          trigger="mouseenter focus click"
+          placement="bottom"
+          inertia={true}
+          interactive={true}
+          interactiveBorder={10}
+          duration={[75, 75]}
+          delay={500}
+        />
+        <Tippy
+          singleton={sourceAdd}
+          arrow={false}
+          theme="light-border"
+          trigger="click"
+          inertia={true}
+          interactive={true}
+          interactiveBorder={10}
+          duration={[0, 0]}
+          delay={0}
+          hideOnClick={true}
+        />
+        <Tippy
+          singleton={targetAdd}
+          arrow={true}
+          content={
+            <Box>
+              <EmojiPicker
+                isLoggedIn={isLoggedIn}
+                login={login}
+                viewerReactions={usedReactions
+                  .filter((x) => x.viewerHasReacted)
+                  .map((x) => x.content)}
+                onDeselect={async (content) => {
+                  // eslint-disable-next-line no-unused-expressions
+                  sourceAdd?.data?.instance?.hide();
 
-          try {
-            await removeReaction({
-              environment,
-              content,
-              subjectId
-            });
-          } catch (e) {
-            notifyError('Error removing reaction.');
-          }
-        }} onSelect={async content => {
-          // eslint-disable-next-line no-unused-expressions
-          sourceAdd?.data?.instance?.hide();
+                  try {
+                    await removeReaction({
+                      environment,
+                      content,
+                      subjectId,
+                    });
+                  } catch (e) {
+                    notifyError("Error removing reaction.");
+                  }
+                }}
+                onSelect={async (content) => {
+                  // eslint-disable-next-line no-unused-expressions
+                  sourceAdd?.data?.instance?.hide();
 
-          try {
-            await addReaction({
-              environment,
-              content,
-              subjectId
-            });
-          } catch (e) {
-            notifyError('Error adding reaction.');
-          }
-        }} />
-            </Box>}>
-          <span style={{
-          padding: '8px 16px'
-        }} className="add-reaction-emoji" onClick={() => setShowReactionPopover(!showReactionPopover)}>
+                  try {
+                    await addReaction({
+                      environment,
+                      content,
+                      subjectId,
+                    });
+                  } catch (e) {
+                    notifyError("Error adding reaction.");
+                  }
+                }}
+              />
+            </Box>
+          }>
+          <span
+            style={{
+              padding: "8px 16px",
+            }}
+            className="add-reaction-emoji"
+            onClick={() => setShowReactionPopover(!showReactionPopover)}>
             <AddIcon width="12" />
-            <EmojiIcon width="24" style={{
-            marginLeft: 2,
-            stroke: 'rgba(0,0,0,0)'
-          }} />
+            <EmojiIcon
+              width="24"
+              style={{
+                marginLeft: 2,
+                stroke: "rgba(0,0,0,0)",
+              }}
+            />
           </span>
         </Tippy>
-        <Box direction="row" style={{
-        overflowY: 'auto'
-      }}>
-          {usedReactions.map(g => {
-          const total = g.users.totalCount;
-          const reactors = [];
+        <Box
+          direction="row"
+          style={{
+            overflowY: "auto",
+          }}>
+          {usedReactions.map((g) => {
+            const total = g.users.totalCount;
+            const reactors = [];
 
-          if (isLoggedIn && g.viewerHasReacted) {
-            reactors.push('You');
-          }
-
-          for (const user of g.users.nodes || []) {
-            if (user && (!isLoggedIn || !user.isViewer) && (user.name || user.login)) {
-              reactors.push(user.name || user.login);
+            if (isLoggedIn && g.viewerHasReacted) {
+              reactors.push("You");
             }
-          }
 
-          if (total > 11) {
-            reactors.push(`${total - 11} more`);
-          }
+            for (const user of g.users.nodes || []) {
+              if (
+                user &&
+                (!isLoggedIn || !user.isViewer) &&
+                (user.name || user.login)
+              ) {
+                reactors.push(user.name || user.login);
+              }
+            }
 
-          const reactorsSentence = [...reactors.slice(0, reactors.length - 2), reactors.slice(-2).join(reactors.length > 2 ? ', and ' : ' and ')].join(', ');
-          return <Tippy singleton={targetTooltip} key={g.content} content={<Box pad="xsmall">
+            if (total > 11) {
+              reactors.push(`${total - 11} more`);
+            }
+
+            const reactorsSentence = [
+              ...reactors.slice(0, reactors.length - 2),
+              reactors.slice(-2).join(reactors.length > 2 ? ", and " : " and "),
+            ].join(", ");
+            return (
+              <Tippy
+                singleton={targetTooltip}
+                key={g.content}
+                content={
+                  <Box pad="xsmall">
                     <Text size="xsmall">
-                      {reactorsSentence} reacted with{' '}
+                      {reactorsSentence} reacted with{" "}
                       {lowerCase(sentenceCase(g.content))} emoji
                     </Text>
-                  </Box>}>
-                <span key={g.content} style={{
-              padding: '0 16px',
-              borderLeft: '1px solid rgba(0,0,0,0.12)',
-              display: 'flex',
-              alignItems: 'center'
-            }}>
+                  </Box>
+                }>
+                <span
+                  key={g.content}
+                  style={{
+                    padding: "0 16px",
+                    borderLeft: "1px solid rgba(0,0,0,0.12)",
+                    display: "flex",
+                    alignItems: "center",
+                  }}>
                   <Text>{emojiForContent(g.content)} </Text>
-                  <Text size="small" style={{
-                marginLeft: 8
-              }}>
+                  <Text
+                    size="small"
+                    style={{
+                      marginLeft: 8,
+                    }}>
                     {g.users.totalCount}
                   </Text>
                 </span>
-              </Tippy>;
-        })}
+              </Tippy>
+            );
+          })}
         </Box>
       </Box>
-      {commentsInfo ? <Box direction="row" wrap={true}>
+      {commentsInfo ? (
+        <Box direction="row" wrap={true}>
           <Link as={commentsInfo.as} href={commentsInfo.href}>
-            <button title={commentsInfo.count ? 'View comments' : 'Leave a comment'} style={{
-          cursor: 'pointer',
-          outline: 'none',
-          backgroundColor: 'transparent',
-          border: 'none',
-          margin: 0,
-          padding: 0
-        }}>
-              <span style={{
-            padding: '0 16px',
-            display: 'flex',
-            alignItems: 'center'
-          }}>
+            <button
+              title={commentsInfo.count ? "View comments" : "Leave a comment"}
+              style={{
+                cursor: "pointer",
+                outline: "none",
+                backgroundColor: "transparent",
+                border: "none",
+                margin: 0,
+                padding: 0,
+              }}>
+              <span
+                style={{
+                  padding: "0 16px",
+                  display: "flex",
+                  alignItems: "center",
+                }}>
                 <CommentsIcon width="12" />
               </span>
             </button>
           </Link>
-        </Box> : null}
-    </Box>;
+        </Box>
+      ) : null}
+    </Box>
+  );
 };
 export function slugify(s: string): string {
-  return lowerCase(s).trim().replace(/\s+/g, '-') // Replace spaces with -
-  .replace(/&/g, '-and-') // Replace & with 'and'
-  .replace(/[^\w-]+/g, '') // Remove all non-word characters
-  .replace(/--+/g, '-') // Replace multiple - with single -
-  .trim();
+  return lowerCase(s)
+    .trim()
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/&/g, "-and-") // Replace & with 'and'
+    .replace(/[^\w-]+/g, "") // Remove all non-word characters
+    .replace(/--+/g, "-") // Replace multiple - with single -
+    .trim();
 }
 export function postPath({
   post,
-  viewComments
+  viewComments,
 }: {
   post: {
     readonly number: number;
@@ -421,11 +524,13 @@ export function postPath({
   };
   viewComments?: boolean;
 }) {
-  return `/post/${post.number}/${slugify(post.title)}${viewComments ? '#comments' : ''}`;
+  return `/post/${post.number}/${slugify(post.title)}${
+    viewComments ? "#comments" : ""
+  }`;
 }
 
 function visitBackmatter(node: any, fn) {
-  if (node.type === 'code' && node.lang === 'backmatter') {
+  if (node.type === "code" && node.lang === "backmatter") {
     fn(node);
   }
 
@@ -441,18 +546,18 @@ export function postBackmatter(post: {
 }): Record<string, any> {
   const backmatter = {};
   const ast = parseMarkdown(post.body);
-  visitBackmatter(ast, node => {
+  visitBackmatter(ast, (node) => {
     try {
       Object.assign(backmatter, JSON.parse(node.value));
     } catch (e) {
-      console.error('Error visiting backmatter', e);
+      console.error("Error visiting backmatter", e);
     }
   });
   return backmatter;
 }
 export function computePostDate({
   backmatter,
-  createdAt
+  createdAt,
 }: {
   backmatter: Record<string, any>;
   createdAt: string;
@@ -463,30 +568,36 @@ export function computePostDate({
 
   return new Date(createdAt);
 }
-export const Post = ({
-  relay,
-  post,
-  context
-}: Props) => {
+export const Post = ({ relay, post, context }: Props) => {
   const environment = useRelayEnvironment();
   const backmatter = React.useMemo(() => postBackmatter(post), [post]);
-  const postDate = React.useMemo(() => computePostDate({
-    backmatter,
-    createdAt: String(post.createdAt)
-  }), [post]);
+  const postDate = React.useMemo(
+    () =>
+      computePostDate({
+        backmatter,
+        createdAt: String(post.createdAt),
+      }),
+    [post],
+  );
   const number = post.number;
-  const {
-    loginStatus
-  } = React.useContext(UserContext);
+  const { loginStatus } = React.useContext(UserContext);
   const lastLoginStatus = React.useRef(loginStatus);
   React.useEffect(() => {
-    if (lastLoginStatus.current === 'logged-out' && loginStatus === 'logged-in') {
+    if (
+      lastLoginStatus.current === "logged-out" &&
+      loginStatus === "logged-in"
+    ) {
       // Refetch post if we log in to reset `viewerHasReacted` and friends
-      loadQuery.loadQuery(environment, postRootQuery, {
-        issueNumber: number
-      }, {
-        fetchPolicy: 'network-only'
-      });
+      loadQuery.loadQuery(
+        environment,
+        postRootQuery,
+        {
+          issueNumber: number,
+        },
+        {
+          fetchPolicy: "network-only",
+        },
+      );
     }
 
     lastLoginStatus.current = loginStatus;
@@ -496,111 +607,182 @@ export const Post = ({
   // We like getStaticProps for SSR, but it's more efficient to fetch directly
   // from OneGraph once the client-side code is loaded, esp. when logged in
   React.useEffect(() => {
-    if (context === 'list') {
-      loadQuery.loadQuery(environment, postRootQuery, {
-        issueNumber: number
-      }, {
-        fetchPolicy: 'store-or-network'
-      });
-    } else if (context === 'details') {
-      loadQuery.loadQuery(environment, postsRootQuery, {}, {
-        fetchPolicy: 'store-or-network'
-      });
+    if (context === "list") {
+      loadQuery.loadQuery(
+        environment,
+        postRootQuery,
+        {
+          issueNumber: number,
+        },
+        {
+          fetchPolicy: "store-or-network",
+        },
+      );
+    } else if (context === "details") {
+      loadQuery.loadQuery(
+        environment,
+        postsRootQuery,
+        {},
+        {
+          fetchPolicy: "store-or-network",
+        },
+      );
     }
   }, [environment, context, number]);
   const authors = [];
 
   for (const node of post.assignees.nodes || []) {
     if (node) {
-      const url = node.twitterUsername ? `https://twitter.com/${node.twitterUsername}` : node.websiteUrl || node.url;
+      const url = node.twitterUsername
+        ? `https://twitter.com/${node.twitterUsername}`
+        : node.websiteUrl || node.url;
       const name = node.name || node.twitterUsername || node.login;
       authors.push({
         url,
         name,
-        avatarUrl: node.avatarUrl
+        avatarUrl: node.avatarUrl,
       });
     }
   }
 
   if (Array.isArray(backmatter.authors)) {
     for (const node of backmatter.authors) {
-      if (node.url && typeof node.url === 'string' && node.name && typeof node.name === 'string' && node.avatarUrl && typeof node.avatarUrl === 'string') {
+      if (
+        node.url &&
+        typeof node.url === "string" &&
+        node.name &&
+        typeof node.name === "string" &&
+        node.avatarUrl &&
+        typeof node.avatarUrl === "string"
+      ) {
         authors.push({
           url: node.url,
           name: node.name,
-          avatarUrl: node.avatarUrl
+          avatarUrl: node.avatarUrl,
         });
       } else {
-        console.warn('Invalid author in backmatter, expected JSON like {"name": "Jack", "url": "https://example.com", "avatarUrl": "https://example.com/img.png"}');
+        console.warn(
+          'Invalid author in backmatter, expected JSON like {"name": "Jack", "url": "https://example.com", "avatarUrl": "https://example.com/img.png"}',
+        );
       }
     }
   }
 
-  return <PostBox>
+  return (
+    <PostBox>
       <Head>
-        {backmatter.canonical ? <link rel="canonical" href={backmatter.canonical} /> : null}
+        {backmatter.canonical ? (
+          <link rel="canonical" href={backmatter.canonical} />
+        ) : null}
       </Head>
       <Box pad="medium">
         <Heading level={1} margin="none">
-          {context === 'details' ? post.title : <Link href="/post/[...slug]" as={postPath({
-          post
-        })} shallow={true}>
-              <a style={{
-            color: 'inherit'
-          }}>{post.title}</a>
-            </Link>}
+          {context === "details" ? (
+            post.title
+          ) : (
+            <Link
+              href="/post/[...slug]"
+              as={postPath({
+                post,
+              })}
+              shallow={true}>
+              <a
+                style={{
+                  color: "inherit",
+                }}>
+                {post.title}
+              </a>
+            </Link>
+          )}
         </Heading>
 
-        {authors.length > 0 ? <Box direction="row" gap="medium">
+        {authors.length > 0 ? (
+          <Box direction="row" gap="medium">
             {authors.map((author, i) => {
-          return <Box key={i} align="center" direction="row" margin={{
-            vertical: 'medium'
-          }}>
+              return (
+                <Box
+                  key={i}
+                  align="center"
+                  direction="row"
+                  margin={{
+                    vertical: "medium",
+                  }}>
                   <a href={author.url}>
                     <Box>
-                      <img alt={author.name} src={imageUrl({
-                  src: author.avatarUrl
-                })} style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: '50%',
-                  marginRight: 8
-                }} />
+                      <img
+                        alt={author.name}
+                        src={imageUrl({
+                          src: author.avatarUrl,
+                        })}
+                        style={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          marginRight: 8,
+                        }}
+                      />
                     </Box>
                   </a>
                   <Box>
                     <a href={author.url}>
                       <Text size="small">{author.name}</Text>
                     </a>
-                    <Text size="xsmall" style={{
-                visibility: i === 0 ? 'visible' : 'hidden'
-              }}>
-                      {formatDate(postDate, 'MMM do, yyyy')}
+                    <Text
+                      size="xsmall"
+                      style={{
+                        visibility: i === 0 ? "visible" : "hidden",
+                      }}>
+                      {formatDate(postDate, "MMM do, yyyy")}
                     </Text>
                   </Box>
-                </Box>;
-        })}
-          </Box> : null}
+                </Box>
+              );
+            })}
+          </Box>
+        ) : null}
         <Box direction="row" justify="between"></Box>
-        {context === 'details' ? <Text>
-            <MarkdownRenderer trustedInput={true} source={post.body} addHeadingIds={context === 'details'} HashLink={function HashLink(props) {
-          return <Link href="/post/[...slug]" as={`${postPath({
-            post
-          })}${props.hash}`}>
+        {context === "details" ? (
+          <Text>
+            <MarkdownRenderer
+              trustedInput={true}
+              source={post.body}
+              addHeadingIds={context === "details"}
+              HashLink={function HashLink(props) {
+                return (
+                  <Link
+                    href="/post/[...slug]"
+                    as={`${postPath({
+                      post,
+                    })}${props.hash}`}>
                     <a>{props.children}</a>
-                  </Link>;
-        }} />
-          </Text> : <span></span>}
+                  </Link>
+                );
+              }}
+            />
+          </Text>
+        ) : (
+          <span></span>
+        )}
       </Box>
-      <ReactionBar relay={relay} subjectId={post.id} reactionGroups={post.reactionGroups} commentsInfo={context === 'list' ? {
-      href: '/post/[...slug]',
-      as: postPath({
-        post,
-        viewComments: true
-      }),
-      count: post.commentsCount.totalCount
-    } : null} />
-    </PostBox>;
+      <ReactionBar
+        relay={relay}
+        subjectId={post.id}
+        reactionGroups={post.reactionGroups}
+        commentsInfo={
+          context === "list"
+            ? {
+                href: "/post/[...slug]",
+                as: postPath({
+                  post,
+                  viewComments: true,
+                }),
+                count: post.commentsCount.totalCount,
+              }
+            : null
+        }
+      />
+    </PostBox>
+  );
 };
 export default createFragmentContainer(Post, {
   post: graphql`
@@ -645,5 +827,5 @@ export default createFragmentContainer(Post, {
         }
       }
     }
-  `
+  `,
 });

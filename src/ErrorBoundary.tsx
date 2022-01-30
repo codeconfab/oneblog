@@ -2,25 +2,31 @@ import React from "react";
 import ErrorBox from "./ErrorBox";
 import { NotificationContext } from "./Notifications";
 
-class ErrorBoundary extends React.Component<{
-  children: any;
-}, {
-  error: Error | null | undefined;
-}> {
+class ErrorBoundary extends React.Component<
+  {
+    children: any;
+  },
+  {
+    error: Error | null | undefined;
+  }
+> {
   static contextType = NotificationContext;
   state = {
-    error: null
+    error: null,
   };
 
   static getDerivedStateFromError(error) {
     return {
-      error
+      error,
     };
   }
 
   render() {
     if (this.state.error != null) {
-      if (this.state.error.type === 'missing-cors' && this.context?.setCorsViolation) {
+      if (
+        this.state.error.type === "missing-cors" &&
+        this.context?.setCorsViolation
+      ) {
         this.context.setCorsViolation();
       }
 
@@ -29,7 +35,6 @@ class ErrorBoundary extends React.Component<{
 
     return this.props.children;
   }
-
 }
 
 export default ErrorBoundary;

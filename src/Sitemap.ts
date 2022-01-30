@@ -8,8 +8,8 @@ import type { Sitemap_QueryResponse } from "./__generated__/Sitemap_Query.graphq
 const sitemapQuery = graphql`
   query Sitemap_Query($repoOwner: String!, $repoName: String!, $cursor: String)
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+    fixedVariables: { environmentVariable: "REPOSITORY_FIXED_VARIABLES" }
     freeVariables: ["cursor"]
     cacheSeconds: 300
   ) {
@@ -18,7 +18,7 @@ const sitemapQuery = graphql`
         issues(
           first: 100
           after: $cursor
-          orderBy: {direction: DESC, field: CREATED_AT}
+          orderBy: { direction: DESC, field: CREATED_AT }
           labels: ["publish", "Publish"]
         ) {
           pageInfo {
@@ -35,18 +35,14 @@ const sitemapQuery = graphql`
     }
   }
 `;
-export async function buildSitemap({
-  siteHostname
-}: {
-  siteHostname: string;
-}) {
+export async function buildSitemap({ siteHostname }: { siteHostname: string }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const basePath = useBasePath();
   const smStream = new SitemapStream({
-    hostname: `${siteHostname}`
+    hostname: `${siteHostname}`,
   });
   smStream.write({
-    url: `${basePath}/`
+    url: `${basePath}/`,
   });
   const environment = createEnvironment();
   let hasNextPage = true;
@@ -55,18 +51,22 @@ export async function buildSitemap({
   let reqCount = 0;
 
   while (hasNextPage && reqCount <= 10) {
-    const data: Sitemap_QueryResponse | null | undefined = await fetchQuery(environment, sitemapQuery, {
-      cursor
-    }).toPromise();
+    const data: Sitemap_QueryResponse | null | undefined = await fetchQuery(
+      environment,
+      sitemapQuery,
+      {
+        cursor,
+      },
+    ).toPromise();
     reqCount++;
 
     for (const node of data?.gitHub?.repository?.issues?.nodes || []) {
       if (node) {
         smStream.write({
           url: `${basePath}${postPath({
-            post: node
+            post: node,
           })}`,
-          lastmod: node.updatedAt
+          lastmod: node.updatedAt,
         });
       }
     }

@@ -2,11 +2,13 @@ import unified from "unified";
 import parse from "remark-parse";
 import type { Unified$Node } from "unified";
 
-const markdownParser = unified().use({
-  settings: {
-    position: false
-  }
-}).use(parse);
+const markdownParser = unified()
+  .use({
+    settings: {
+      position: false,
+    },
+  })
+  .use(parse);
 
 const memo: Map<string, Unified$Node> = new Map();
 const MAX_ENTRIES = 100;

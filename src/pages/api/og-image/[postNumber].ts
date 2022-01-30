@@ -1,8 +1,8 @@
 import { ogImage } from "../../../ogImage";
 export const config = {
   api: {
-    externalResolver: true
-  }
+    externalResolver: true,
+  },
 };
 
 const ogImageHandler = async (req, res) => {

@@ -6,8 +6,8 @@ export type UserContextType = {
   logout: () => void;
 };
 const UserContext = React.createContext<UserContextType>({
-  loginStatus: 'checking',
+  loginStatus: "checking",
   login: () => undefined,
-  logout: () => undefined
+  logout: () => undefined,
 });
 export default UserContext;

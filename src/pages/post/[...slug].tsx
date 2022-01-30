@@ -17,7 +17,7 @@ export async function getStaticProps(context: any) {
 
   if (!issueNumber) {
     return {
-      props: {}
+      props: {},
     };
   }
 
@@ -25,20 +25,20 @@ export async function getStaticProps(context: any) {
   const environment = createEnvironment({
     registerMarkdown: function (m) {
       markdowns.push(m);
-    }
+    },
   });
   await fetchQuery(environment, query, {
-    issueNumber
+    issueNumber,
   }).toPromise();
   let tokenInfos = {};
 
   try {
     tokenInfos = await tokenInfosFromMarkdowns({
       markdowns,
-      theme: config.codeTheme
+      theme: config.codeTheme,
     });
   } catch (e) {
-    console.error('Error fetching tokenInfos for highlighting code', e);
+    console.error("Error fetching tokenInfos for highlighting code", e);
   }
 
   return {
@@ -46,30 +46,29 @@ export async function getStaticProps(context: any) {
     props: {
       issueNumber,
       initialRecords: environment.getStore().getSource().toJSON(),
-      tokenInfos
-    }
+      tokenInfos,
+    },
   };
 }
 export async function getStaticPaths() {
   const paths = await generateStaticPaths();
   return {
     paths,
-    fallback: 'blocking'
+    fallback: "blocking",
   };
 }
 
 const Page = ({
-  issueNumber: staticIssueNumber
+  issueNumber: staticIssueNumber,
 }: {
   issueNumber: number | null | undefined;
 }) => {
   const {
     isFallback,
-    query: {
-      slug
-    }
+    query: { slug },
   } = useRouter();
-  const issueNumber = staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
+  const issueNumber =
+    staticIssueNumber || (slug?.[0] ? parseInt(slug[0], 10) : null);
 
   if (!issueNumber) {
     if (isFallback) {

@@ -5,60 +5,61 @@ import { css } from "styled-components";
 const oneBlog = deepMerge(generate(24, 10), {
   global: {
     colors: {
-      brand: '#1997c6',
-      'accent-1': '#3cc7b7',
-      focus: 'rgba(60, 199, 183, 0.75)'
-    }
+      brand: "#1997c6",
+      "accent-1": "#3cc7b7",
+      focus: "rgba(60, 199, 183, 0.75)",
+    },
   },
   anchor: {
-    fontWeight: 'normal',
-    textDecoration: 'underline',
-    color: null
+    fontWeight: "normal",
+    textDecoration: "underline",
+    color: null,
   },
   button: {
     border: {
-      radius: 4
+      radius: 4,
     },
 
     extend(props) {
-      return props.plain ? null : css`
+      return props.plain
+        ? null
+        : css`
             &:hover {
               box-shadow: none;
               color: ${props.theme.global.colors.brand};
             }
           `;
-    }
-
+    },
   },
   table: {
     header: {
-      align: 'start',
+      align: "start",
       pad: {
-        horizontal: 'small',
-        vertical: 'xsmall'
+        horizontal: "small",
+        vertical: "xsmall",
       },
-      border: 'small',
+      border: "small",
       style: {
-        fontWeight: 'bold'
-      }
+        fontWeight: "bold",
+      },
     },
     body: {
-      border: 'small',
-      align: 'start',
+      border: "small",
+      align: "start",
       pad: {
-        horizontal: 'small',
-        vertical: 'xsmall'
-      }
+        horizontal: "small",
+        vertical: "xsmall",
+      },
     },
     footer: {
-      align: 'start',
+      align: "start",
       pad: {
-        horizontal: 'small',
-        vertical: 'xsmall'
+        horizontal: "small",
+        vertical: "xsmall",
       },
-      border: 'small'
-    }
-  }
+      border: "small",
+    },
+  },
 });
 const theme = deepMerge(oneBlog, hpe);
 export default theme;

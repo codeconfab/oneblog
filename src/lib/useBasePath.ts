@@ -4,11 +4,11 @@ export default function useBasePath(): string {
     const router = useRouter();
 
     if (router) {
-      return router.basePath || '';
+      return router.basePath || "";
     } else {
-      return process.env.BASE_PATH || '';
+      return process.env.BASE_PATH || "";
     }
   } catch (_e) {
-    return process.env.BASE_PATH || '';
+    return process.env.BASE_PATH || "";
   }
 }

@@ -11,8 +11,8 @@ export const query = graphql`
     $cursor: String
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+    fixedVariables: { environmentVariable: "REPOSITORY_FIXED_VARIABLES" }
     freeVariables: ["count", "cursor"]
     cacheSeconds: 60
   ) {
@@ -20,8 +20,8 @@ export const query = graphql`
       repository(name: $repoName, owner: $repoOwner) {
         issues(
           first: $count
-          filterBy: {labels: ["publish", "Publish"]}
-          orderBy: {field: CREATED_AT, direction: DESC}
+          filterBy: { labels: ["publish", "Publish"] }
+          orderBy: { field: CREATED_AT, direction: DESC }
           after: $cursor
         ) {
           pageInfo {
@@ -47,7 +47,7 @@ export async function getStaticPaths() {
   while (hasNextPage) {
     const data = await fetchQuery(environment, query, {
       count: 100,
-      cursor
+      cursor,
     }).toPromise();
     cursor = data.gitHub.repository.issues.pageInfo.endCursor;
     // Only get the newest 100 for now to prevent API limits
@@ -60,9 +60,9 @@ export async function getStaticPaths() {
     }
   }
 
-  return issues.map(issue => ({
+  return issues.map((issue) => ({
     params: {
-      slug: [String(issue.number), slugify(issue.title)]
-    }
+      slug: [String(issue.number), slugify(issue.title)],
+    },
   }));
 }

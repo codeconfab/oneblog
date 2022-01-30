@@ -13,8 +13,8 @@ const postQuery = graphql`
     $repoOwner: String!
   )
   @persistedQueryConfiguration(
-    accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
-    fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+    accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
+    fixedVariables: { environmentVariable: "REPOSITORY_FIXED_VARIABLES" }
     freeVariables: ["issueNumber"]
     cacheSeconds: 300
   ) {
@@ -39,26 +39,34 @@ const postQuery = graphql`
 `;
 const markdownParser = unified().use(parse);
 
-function imageFromAst(node: any): ({
-  type: "url";
-  url: string;
-} | {
-  type: "code";
-  lang: string | null | undefined;
-  code: string;
-}) | null | undefined {
-  if (node.type === 'image' && node.url) {
+function imageFromAst(
+  node: any,
+):
+  | (
+      | {
+          type: "url";
+          url: string;
+        }
+      | {
+          type: "code";
+          lang: string | null | undefined;
+          code: string;
+        }
+    )
+  | null
+  | undefined {
+  if (node.type === "image" && node.url) {
     return {
-      type: 'url',
-      url: node.url
+      type: "url",
+      url: node.url,
     };
   }
 
-  if (node.type === 'code' && node.lang !== 'backmatter' && node.value) {
+  if (node.type === "code" && node.lang !== "backmatter" && node.value) {
     return {
-      type: 'code',
+      type: "code",
       lang: node.lang,
-      code: node.value
+      code: node.value,
     };
   }
 
@@ -73,50 +81,57 @@ function imageFromAst(node: any): ({
   }
 }
 
-function respondWithCodeImage(res, {
-  code,
-  lang
-}: {
-  code: string;
-  lang: string | null | undefined;
-}) {
+function respondWithCodeImage(
+  res,
+  {
+    code,
+    lang,
+  }: {
+    code: string;
+    lang: string | null | undefined;
+  },
+) {
   const postData = JSON.stringify({
     code,
     settings: {
       theme: Config.codeTheme,
-      language: lang
-    }
+      language: lang,
+    },
   });
   return new Promise((resolve, reject) => {
-    const req = https.request('https://sourcecodeshots.com/api/image', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': postData.length
-      }
-    }, httpRes => {
-      res.status(httpRes.statusCode);
+    const req = https.request(
+      "https://sourcecodeshots.com/api/image",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": postData.length,
+        },
+      },
+      (httpRes) => {
+        res.status(httpRes.statusCode);
 
-      for (const k of Object.keys(httpRes.headers)) {
-        const lowerK = k.toLowerCase();
+        for (const k of Object.keys(httpRes.headers)) {
+          const lowerK = k.toLowerCase();
 
-        if (lowerK === 'content-type' || lowerK === 'content-length') {
-          res.set(k, httpRes.headers[k]);
+          if (lowerK === "content-type" || lowerK === "content-length") {
+            res.set(k, httpRes.headers[k]);
+          }
         }
-      }
 
-      httpRes.on('data', chunk => {
-        res.write(chunk);
-      });
-      httpRes.on('end', () => {
-        res.end();
-        // @ts-ignore
-        resolve();
-      });
-    });
-    req.on('error', err => {
-      console.error('Error creating code image');
-      res.send('Error');
+        httpRes.on("data", (chunk) => {
+          res.write(chunk);
+        });
+        httpRes.on("end", () => {
+          res.end();
+          // @ts-ignore
+          resolve();
+        });
+      },
+    );
+    req.on("error", (err) => {
+      console.error("Error creating code image");
+      res.send("Error");
       res.status(500);
       reject(err);
     });
@@ -128,13 +143,17 @@ function respondWithCodeImage(res, {
 export const ogImage = async (req: any, res: any) => {
   const postNumber = parseInt(req.params.postNumber, 10);
   const data = await fetchQuery(createEnvironment(), postQuery, {
-    issueNumber: postNumber
+    issueNumber: postNumber,
   }).toPromise();
   const issue = data?.gitHub?.repository?.issue;
 
-  if (!issue || !issue.labels?.nodes?.length || !issue.labels.nodes.find(l => l && l.name.toLowerCase() === 'publish')) {
+  if (
+    !issue ||
+    !issue.labels?.nodes?.length ||
+    !issue.labels.nodes.find((l) => l && l.name.toLowerCase() === "publish")
+  ) {
     res.status(404);
-    res.send('Could not find issue');
+    res.send("Could not find issue");
     return;
   }
 
@@ -142,9 +161,9 @@ export const ogImage = async (req: any, res: any) => {
   const bodyImage = imageFromAst(ast);
 
   if (bodyImage) {
-    if (bodyImage.type === 'code') {
+    if (bodyImage.type === "code") {
       return await respondWithCodeImage(res, bodyImage);
-    } else if (bodyImage.type === 'url') {
+    } else if (bodyImage.type === "url") {
       return await proxyImage(res, new URL(bodyImage.url));
     }
   } else {
@@ -154,7 +173,7 @@ export const ogImage = async (req: any, res: any) => {
       return await proxyImage(res, avatarUrl);
     } else {
       res.status(500);
-      res.send('Error');
+      res.send("Error");
     }
   }
 };

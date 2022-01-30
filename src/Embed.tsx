@@ -12,28 +12,23 @@ type Uri = {
 
 function parseUrl(url: string): Uri | null {
   try {
-    const {
-      hostname,
-      pathname,
-      search,
-      hash
-    } = new URL(url);
+    const { hostname, pathname, search, hash } = new URL(url);
     return {
       url,
       hostname,
       pathname,
       search,
-      hash
+      hash,
     };
   } catch (error) {
-    console.error('Unable to parse url', url);
+    console.error("Unable to parse url", url);
     return null;
   }
 }
 
 function Tweet({
   id,
-  fallback
+  fallback,
 }: {
   id: string;
   fallback: React.ReactElement<React.ComponentProps<any>, any>;
@@ -42,10 +37,8 @@ function Tweet({
   const [renderFallback, setRenderFallback] = React.useState(true);
   React.useEffect(() => {
     let canceled = false;
-    import('scriptjs').then(({
-      default: scriptjs
-    }) => {
-      scriptjs('https://platform.twitter.com/widgets.js', 'tw', () => {
+    import("scriptjs").then(({ default: scriptjs }) => {
+      scriptjs("https://platform.twitter.com/widgets.js", "tw", () => {
         if (!canceled) {
           try {
             window.twttr.widgets.createTweet(id, ref.current).then(() => {
@@ -61,20 +54,21 @@ function Tweet({
       canceled = true;
     };
   }, [id, setRenderFallback]);
-  return <div ref={ref} style={{
-    maxWidth: '100%'
-  }}>
+  return (
+    <div
+      ref={ref}
+      style={{
+        maxWidth: "100%",
+      }}>
       {renderFallback ? fallback : null}
-    </div>;
+    </div>
+  );
 }
 
-function YouTube({
-  uri,
-  fallback
-}) {
+function YouTube({ uri, fallback }) {
   let videoId;
   const searchMatch = uri.search.match(/v=([^&]+)(&|$)/);
-  const urlMatch = uri.pathname.replace('/', '');
+  const urlMatch = uri.pathname.replace("/", "");
 
   if (searchMatch) {
     videoId = searchMatch[1];
@@ -86,23 +80,38 @@ function YouTube({
     return fallback;
   }
 
-  return <iframe title={uri.url} type="text/html" width="100%" height="360" src={`https://www.youtube.com/embed/${videoId}`} frameBorder="0"></iframe>;
+  return (
+    <iframe
+      title={uri.url}
+      type="text/html"
+      width="100%"
+      height="360"
+      src={`https://www.youtube.com/embed/${videoId}`}
+      frameBorder="0"></iframe>
+  );
 }
 
-function SoundCloud({
-  uri
-}) {
-  return <iframe title={uri.url} width="100%" height="200" scrolling="no" frameBorder="no" style={{
-    margin: 0,
-    padding: 0
-  }} src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(uri.url)}`} />;
+function SoundCloud({ uri }) {
+  return (
+    <iframe
+      title={uri.url}
+      width="100%"
+      height="200"
+      scrolling="no"
+      frameBorder="no"
+      style={{
+        margin: 0,
+        padding: 0,
+      }}
+      src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
+        uri.url,
+      )}`}
+    />
+  );
 }
 
-function JsFiddle({
-  uri,
-  fallback
-}) {
-  const steps = uri.pathname.split('/');
+function JsFiddle({ uri, fallback }) {
+  const steps = uri.pathname.split("/");
 
   if (steps.length < 2) {
     return fallback;
@@ -114,67 +123,82 @@ function JsFiddle({
     id += `/${steps[2]}`;
   }
 
-  return <iframe title={uri.url} width="100%" height="400" src={`https://jsfiddle.net/${id}/embedded/result/`} frameBorder="0" allowFullScreen />;
+  return (
+    <iframe
+      title={uri.url}
+      width="100%"
+      height="400"
+      src={`https://jsfiddle.net/${id}/embedded/result/`}
+      frameBorder="0"
+      allowFullScreen
+    />
+  );
 }
 
-function Imgur({
-  id,
-  uri,
-  fallback
-}) {
+function Imgur({ id, uri, fallback }) {
   const src = `https://imgur.com/a/${id}/embed?pub=true&w=340`;
   const [height, setHeight] = React.useState(250);
   React.useEffect(() => {
-    function onMessage({
-      data
-    }) {
+    function onMessage({ data }) {
       try {
         const json = JSON.parse(data);
-        if (json.message !== 'resize_imgur') return;
-        if (typeof json.href !== 'string') return;
+        if (json.message !== "resize_imgur") return;
+        if (typeof json.href !== "string") return;
         if (json.href !== src) return;
-        if (typeof json.height !== 'number') return;
+        if (typeof json.height !== "number") return;
         setHeight(json.height);
       } catch {}
     }
 
-    window.addEventListener('message', onMessage);
-    return () => window.removeEventListener('message', onMessage);
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, [src, setHeight]);
-  return <div style={{
-    border: '1px solid #E5E9F2',
-    borderRadius: '8px'
-  }}>
-      <iframe title={uri.url} scrolling="no" frameBorder="0" src={src} style={{
-      width: '100%',
-      display: 'block',
-      overflow: 'hidden',
-      borderRadius: '8px',
-      height
-    }} />
-    </div>;
+  return (
+    <div
+      style={{
+        border: "1px solid #E5E9F2",
+        borderRadius: "8px",
+      }}>
+      <iframe
+        title={uri.url}
+        scrolling="no"
+        frameBorder="0"
+        src={src}
+        style={{
+          width: "100%",
+          display: "block",
+          overflow: "hidden",
+          borderRadius: "8px",
+          height,
+        }}
+      />
+    </div>
+  );
 }
 
-function Instagram({
-  uri
-}) {
-  const src = uri.url.endsWith('/') ? `${uri.url}embed` : `${uri.url}/embed`;
-  return <div style={{
-    border: '1px solid #E5E9F2',
-    borderRadius: '8px'
-  }}>
-      <iframe title={uri.url} width="320" height="460" src={src} style={{
-      borderRadius: '8px'
-    }} frameBorder="0"></iframe>
-    </div>;
+function Instagram({ uri }) {
+  const src = uri.url.endsWith("/") ? `${uri.url}embed` : `${uri.url}/embed`;
+  return (
+    <div
+      style={{
+        border: "1px solid #E5E9F2",
+        borderRadius: "8px",
+      }}>
+      <iframe
+        title={uri.url}
+        width="320"
+        height="460"
+        src={src}
+        style={{
+          borderRadius: "8px",
+        }}
+        frameBorder="0"></iframe>
+    </div>
+  );
 }
 
-function Gist({
-  id,
-  uri,
-  fallback
-}) {
-  const fileArg = uri.hash ? `?file=${uri.hash.substr(1)}` : '';
+function Gist({ id, uri, fallback }) {
+  const fileArg = uri.hash ? `?file=${uri.hash.substr(1)}` : "";
   const scriptUrl = `https://gist.github.com/${id}.js${fileArg}`;
   const ref = React.useRef<HTMLIFrameElement | null>(null);
   const [iframeId] = React.useState(String(Math.random()));
@@ -186,8 +210,9 @@ function Gist({
     }
 
     const doc: Document = // $FlowFixMe
-    iframe.document || iframe.contentDocument || // $FlowFixMe
-    iframe.contentWidow?.document;
+      iframe.document ||
+      iframe.contentDocument || // $FlowFixMe
+      iframe.contentWidow?.document;
 
     if (!doc) {
       return;
@@ -206,43 +231,67 @@ function Gist({
     doc.writeln(iframeHtml);
     doc.close();
   }, [scriptUrl, uri]);
-  return <iframe title={uri.url} id={iframeId} ref={ref} width="100%" scrolling="no" frameBorder={0} />;
+  return (
+    <iframe
+      title={uri.url}
+      id={iframeId}
+      ref={ref}
+      width="100%"
+      scrolling="no"
+      frameBorder={0}
+    />
+  );
 }
 
-function Replit({
-  uri,
-  fallback
-}) {
-  const steps = uri.pathname.split('/');
+function Replit({ uri, fallback }) {
+  const steps = uri.pathname.split("/");
 
   if (steps.length !== 3) {
     return null;
   }
 
   const id = `${steps[1]}/${steps[2]}`;
-  return <iframe title={uri.url} height="700px" width="100%" frameBorder="no" allowFullScreen src={`https://repl.it/${id}?lite=true`} scrolling="no" />;
+  return (
+    <iframe
+      title={uri.url}
+      height="700px"
+      width="100%"
+      frameBorder="no"
+      allowFullScreen
+      src={`https://repl.it/${id}?lite=true`}
+      scrolling="no"
+    />
+  );
 }
 
-function Figma({
-  uri
-}) {
-  return <div style={{
-    border: '1px solid #E5E9F2',
-    borderRadius: 8,
-    width: '100%'
-  }}>
-      <iframe title={uri.url} style={{
-      borderRadius: 8
-    }} src={`https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(uri.url)}`} width="100%" height="450" frameBorder="0" allowFullScreen />
-    </div>;
+function Figma({ uri }) {
+  return (
+    <div
+      style={{
+        border: "1px solid #E5E9F2",
+        borderRadius: 8,
+        width: "100%",
+      }}>
+      <iframe
+        title={uri.url}
+        style={{
+          borderRadius: 8,
+        }}
+        src={`https://www.figma.com/embed?embed_host=share&url=${encodeURIComponent(
+          uri.url,
+        )}`}
+        width="100%"
+        height="450"
+        frameBorder="0"
+        allowFullScreen
+      />
+    </div>
+  );
 }
 
 const latlngRegex = /@([-0-9.]+),([-0-9.]+)(?:[^-0-9.]|$)/;
 
-function GoogleMaps({
-  uri,
-  fallback
-}) {
+function GoogleMaps({ uri, fallback }) {
   const matches = uri.url.match(latlngRegex);
 
   if (!matches) {
@@ -251,46 +300,65 @@ function GoogleMaps({
 
   // eslint-disable-next-line no-unused-vars
   const [omit, lat, lng] = matches;
-  return <div style={{
-    borderRadius: 8,
-    width: '100%'
-  }}>
-      <iframe title={uri.url} width="100%" height="360" style={{
-      borderRadius: 8
-    }} frameBorder="0" allowFullScreen src={`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d21948.472927059174!2d${encodeURIComponent(lng)}!3d${encodeURIComponent(lat)}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sch!4v1551898961513`} />
-    </div>;
+  return (
+    <div
+      style={{
+        borderRadius: 8,
+        width: "100%",
+      }}>
+      <iframe
+        title={uri.url}
+        width="100%"
+        height="360"
+        style={{
+          borderRadius: 8,
+        }}
+        frameBorder="0"
+        allowFullScreen
+        src={`https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d21948.472927059174!2d${encodeURIComponent(
+          lng,
+        )}!3d${encodeURIComponent(
+          lat,
+        )}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sch!4v1551898961513`}
+      />
+    </div>
+  );
 }
 
-function Google({
-  uri,
-  fallback
-}) {
-  const steps = uri.pathname.split('/');
+function Google({ uri, fallback }) {
+  const steps = uri.pathname.split("/");
 
-  if (steps[1] === 'maps' && steps.length <= 3) {
+  if (steps[1] === "maps" && steps.length <= 3) {
     return <GoogleMaps uri={uri} fallback={fallback} />;
   }
 
   return fallback;
 }
 
-function Gfycat({
-  uri,
-  fallback
-}) {
-  const steps = uri.pathname.split('/');
+function Gfycat({ uri, fallback }) {
+  const steps = uri.pathname.split("/");
 
   if (steps.length < 2) {
     return fallback;
   }
 
-  if (!steps[1] || typeof steps[1] !== 'string') {
+  if (!steps[1] || typeof steps[1] !== "string") {
     return fallback;
   }
 
-  const slugs = steps[1].split('-');
+  const slugs = steps[1].split("-");
   const id = slugs[0];
-  return <iframe title={uri.url} src={`https://gfycat.com/ifr/${id}`} width="100%" height="500px" frameBorder="0" scrolling="no" allowFullScreen />;
+  return (
+    <iframe
+      title={uri.url}
+      src={`https://gfycat.com/ifr/${id}`}
+      width="100%"
+      height="500px"
+      frameBorder="0"
+      scrolling="no"
+      allowFullScreen
+    />
+  );
 }
 
 const AUDIO_EXTENSIONS = /\.(m4a|mp4a|mpga|mp2|mp2a|mp3|m2a|m3a|wav|weba|aac|oga|spx)($|\?)/i;
@@ -298,76 +366,83 @@ const AUDIO_EXTENSIONS = /\.(m4a|mp4a|mpga|mp2|mp2a|mp3|m2a|m3a|wav|weba|aac|oga
 function defaultBlock(uri) {
   if (ReactPlayer.canPlay(uri.url)) {
     const isAudio = AUDIO_EXTENSIONS.test(uri.url);
-    return <ReactPlayer width="100%" height={isAudio ? 64 : 360} controls={true} url={uri.url} />;
+    return (
+      <ReactPlayer
+        width="100%"
+        height={isAudio ? 64 : 360}
+        controls={true}
+        url={uri.url}
+      />
+    );
   }
 
   return null;
 }
 
-function blockForUri(uri: Uri, fallback: React.ReactElement<React.ComponentProps<any>, any>) {
+function blockForUri(
+  uri: Uri,
+  fallback: React.ReactElement<React.ComponentProps<any>, any>,
+) {
   switch (uri.hostname) {
-    case 'twitter.com':
-      {
-        const segments = uri.pathname.split('/');
-        const id = segments[segments.length - 1];
+    case "twitter.com": {
+      const segments = uri.pathname.split("/");
+      const id = segments[segments.length - 1];
 
-        if (id) {
-          return <Tweet id={id} fallback={fallback} />;
-        }
-
-        return defaultBlock(uri);
+      if (id) {
+        return <Tweet id={id} fallback={fallback} />;
       }
 
-    case 'www.youtube.com':
-    case 'youtu.be':
-    case 'youtube.com':
+      return defaultBlock(uri);
+    }
+
+    case "www.youtube.com":
+    case "youtu.be":
+    case "youtube.com":
       return <YouTube uri={uri} fallback={fallback} />;
 
-    case 'soundcloud.com':
+    case "soundcloud.com":
       return <SoundCloud uri={uri} />;
 
-    case 'jsfiddle.net':
+    case "jsfiddle.net":
       return <JsFiddle uri={uri} fallback={fallback} />;
 
-    case 'imgur.com':
-      {
-        if (typeof window === 'undefined') {
-          return null;
-        }
+    case "imgur.com": {
+      if (typeof window === "undefined") {
+        return null;
+      }
 
-        const matches = uri.url.match(/\/(?:a|gallery)\/([^/]+)(?:\/|$)/);
+      const matches = uri.url.match(/\/(?:a|gallery)\/([^/]+)(?:\/|$)/);
 
-        if (matches) {
-          return <Imgur uri={uri} id={matches[1]} fallback={fallback} />;
-        }
+      if (matches) {
+        return <Imgur uri={uri} id={matches[1]} fallback={fallback} />;
+      }
 
+      return defaultBlock(uri);
+    }
+
+    case "www.instagram.com":
+      return <Instagram uri={uri} fallback={fallback} />;
+
+    case "gist.github.com": {
+      const steps = uri.pathname.split("/");
+
+      if (steps.length < 3) {
         return defaultBlock(uri);
       }
 
-    case 'www.instagram.com':
-      return <Instagram uri={uri} fallback={fallback} />;
+      return <Gist id={steps[2]} uri={uri} fallback={fallback} />;
+    }
 
-    case 'gist.github.com':
-      {
-        const steps = uri.pathname.split('/');
-
-        if (steps.length < 3) {
-          return defaultBlock(uri);
-        }
-
-        return <Gist id={steps[2]} uri={uri} fallback={fallback} />;
-      }
-
-    case 'repl.it':
+    case "repl.it":
       return <Replit uri={uri} fallback={fallback} />;
 
-    case 'www.figma.com':
+    case "www.figma.com":
       return <Figma uri={uri} fallback={fallback} />;
 
-    case 'www.google.com':
+    case "www.google.com":
       return <Google uri={uri} fallback={fallback} />;
 
-    case 'gfycat.com':
+    case "gfycat.com":
       return <Gfycat uri={uri} fallback={fallback} />;
 
     default:
@@ -379,12 +454,14 @@ export default function Embed({
   url,
   fallback,
   renderVoid,
-  renderWrap
+  renderWrap,
 }: {
   url: string;
   fallback: React.ReactElement<React.ComponentProps<any>, any>;
   renderVoid: () => React.ReactElement<React.ComponentProps<any>, any>;
-  renderWrap: (children: any) => React.ReactElement<React.ComponentProps<any>, any>;
+  renderWrap: (
+    children: any,
+  ) => React.ReactElement<React.ComponentProps<any>, any>;
 }) {
   const uri = parseUrl(url);
 

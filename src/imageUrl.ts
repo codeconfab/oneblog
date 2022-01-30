@@ -3,7 +3,7 @@ import useBasePath from "./lib/useBasePath";
 
 const imageUrl = ({
   src,
-  firstFrame
+  firstFrame,
 }: {
   src: string | null | undefined;
   firstFrame?: boolean | null | undefined;
@@ -11,7 +11,9 @@ const imageUrl = ({
   const basePath = useBasePath();
 
   if (src) {
-    return `${basePath || ''}/api/image/${firstFrame ? 'firstFrame/' : ''}${base64Encode(src)}`;
+    return `${basePath || ""}/api/image/${
+      firstFrame ? "firstFrame/" : ""
+    }${base64Encode(src)}`;
   }
 
   return src;

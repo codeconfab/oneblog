@@ -3,8 +3,8 @@ import config from "../config";
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {
   if (config.gaTrackingId && window.gtag) {
-    window.gtag('config', config.gaTrackingId, {
-      page_path: url
+    window.gtag("config", config.gaTrackingId, {
+      page_path: url,
     });
   }
 };
@@ -14,7 +14,7 @@ export const event = ({
   category,
   label,
   value,
-  nonInteraction
+  nonInteraction,
 }: {
   action: string;
   category?: string | null | undefined;
@@ -23,11 +23,11 @@ export const event = ({
   nonInteraction?: boolean | null | undefined;
 }) => {
   if (config.gaTrackingId && window.gtag) {
-    window.gtag('event', action, {
+    window.gtag("event", action, {
       event_category: category,
       event_label: label,
       value: value,
-      non_interaction: nonInteraction
+      non_interaction: nonInteraction,
     });
   }
 };

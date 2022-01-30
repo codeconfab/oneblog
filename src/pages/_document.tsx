@@ -8,16 +8,21 @@ export default class MyDocument extends Document {
     const originalRenderPage = ctx.renderPage;
 
     try {
-      ctx.renderPage = () => originalRenderPage({
-        enhanceApp: App => props => sheet.collectStyles(<App {...props} />)
-      });
+      ctx.renderPage = () =>
+        originalRenderPage({
+          enhanceApp: (App) => (props) =>
+            sheet.collectStyles(<App {...props} />),
+        });
 
       const initialProps = await Document.getInitialProps(ctx);
-      return { ...initialProps,
-        styles: <>
+      return {
+        ...initialProps,
+        styles: (
+          <>
             {initialProps.styles}
             {sheet.getStyleElement()}
           </>
+        ),
       };
     } finally {
       sheet.seal();
@@ -25,28 +30,36 @@ export default class MyDocument extends Document {
   }
 
   render() {
-    return <Html>
+    return (
+      <Html>
         <Head>
-          {
-          /* Global Site Tag (gtag.js) - Google Analytics */
-        }
-          {config.gaTrackingId ? <script async src={`https://www.googletagmanager.com/gtag/js?id=${config.gaTrackingId}`} /> : null}
-          {config.gaTrackingId ? <script dangerouslySetInnerHTML={{
-          __html: `
+          {/* Global Site Tag (gtag.js) - Google Analytics */}
+          {config.gaTrackingId ? (
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${config.gaTrackingId}`}
+            />
+          ) : null}
+          {config.gaTrackingId ? (
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', '${config.gaTrackingId}', {
               page_path: window.location.pathname,
             });
-          `
-        }} /> : null}
+          `,
+              }}
+            />
+          ) : null}
         </Head>
         <body>
           <Main />
           <NextScript />
         </body>
-      </Html>;
+      </Html>
+    );
   }
-
 }

@@ -22,14 +22,16 @@ async function findMediumRedirect(path): Promise<number | null | undefined> {
 
   if (mediumId) {
     try {
-      const res = await fetch(`https://medium-oneblog-importer-o3e76jeu3q-uc.a.run.app/redirects/${config.repoOwner}/${config.repoName}/${mediumId}`);
+      const res = await fetch(
+        `https://medium-oneblog-importer-o3e76jeu3q-uc.a.run.app/redirects/${config.repoOwner}/${config.repoName}/${mediumId}`,
+      );
       const json = await res.json();
 
-      if (json.status === 'found' && json.issue && json.issue.number) {
+      if (json.status === "found" && json.issue && json.issue.number) {
         return json.issue.number;
       }
     } catch (e) {
-      console.error('Error finding Medium redirect', e);
+      console.error("Error finding Medium redirect", e);
       return null;
     }
   }
@@ -37,17 +39,19 @@ async function findMediumRedirect(path): Promise<number | null | undefined> {
 
 // workaround for netlify (res.redirect is broken)
 function redirect(res, statusOrUrl, url) {
-  if (typeof statusOrUrl === 'string') {
+  if (typeof statusOrUrl === "string") {
     url = statusOrUrl;
     statusOrUrl = 307;
   }
 
-  if (typeof statusOrUrl !== 'number' || typeof url !== 'string') {
-    throw new Error(`Invalid redirect arguments. Please use a single argument URL, e.g. res.redirect('/destination') or use a status code and URL, e.g. res.redirect(307, '/destination').`);
+  if (typeof statusOrUrl !== "number" || typeof url !== "string") {
+    throw new Error(
+      `Invalid redirect arguments. Please use a single argument URL, e.g. res.redirect('/destination') or use a status code and URL, e.g. res.redirect(307, '/destination').`,
+    );
   }
 
   res.writeHead(statusOrUrl, {
-    Location: url
+    Location: url,
   });
   res.end();
   return res;
@@ -62,7 +66,7 @@ export async function getServerSideProps(context: any) {
   }
 
   return {
-    props: {}
+    props: {},
   };
 }
 

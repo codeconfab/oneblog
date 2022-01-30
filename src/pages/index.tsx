@@ -9,7 +9,7 @@ export async function getStaticProps() {
   const environment = createEnvironment({
     registerMarkdown: function (m) {
       markdowns.push(m);
-    }
+    },
   });
   await fetchQuery(environment, query, {}).toPromise();
   let tokenInfos = {};
@@ -17,18 +17,18 @@ export async function getStaticProps() {
   try {
     tokenInfos = await tokenInfosFromMarkdowns({
       markdowns,
-      theme: config.codeTheme
+      theme: config.codeTheme,
     });
   } catch (e) {
-    console.error('Error fetching tokenInfos for highlighting code', e);
+    console.error("Error fetching tokenInfos for highlighting code", e);
   }
 
   return {
     revalidate: 600,
     props: {
       initialRecords: environment.getStore().getSource().toJSON(),
-      tokenInfos
-    }
+      tokenInfos,
+    },
   };
 }
 

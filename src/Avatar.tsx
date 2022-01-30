@@ -17,14 +17,32 @@ import { createFragmentContainer } from "react-relay";
 import { useFragment } from "react-relay/hooks";
 import graphql from "babel-plugin-relay/macro";
 import type { LoginStatus } from "./UserContext";
-import type { Avatar_gitHub$key, Avatar_gitHub$data, GitHubRepositoryPermission } from "./__generated__/Avatar_gitHub.graphql";
-const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = ['ADMIN', 'MAINTAIN', 'WRITE', 'TRIAGE'];
+import type {
+  Avatar_gitHub$key,
+  Avatar_gitHub$data,
+  GitHubRepositoryPermission,
+} from "./__generated__/Avatar_gitHub.graphql";
+const MANAGE_LABEL_ROLES: Array<GitHubRepositoryPermission> = [
+  "ADMIN",
+  "MAINTAIN",
+  "WRITE",
+  "TRIAGE",
+];
 
-function checkIsAdmin(loginStatus: LoginStatus, repository: {
-  readonly viewerPermission: GitHubRepositoryPermission | null | undefined;
-  readonly viewerCanAdminister: boolean;
-} | null | undefined) {
-  if (loginStatus !== 'logged-in') {
+function checkIsAdmin(
+  loginStatus: LoginStatus,
+  repository:
+    | {
+        readonly viewerPermission:
+          | GitHubRepositoryPermission
+          | null
+          | undefined;
+        readonly viewerCanAdminister: boolean;
+      }
+    | null
+    | undefined,
+) {
+  if (loginStatus !== "logged-in") {
     return false;
   }
 
@@ -43,22 +61,16 @@ type Props = {
   background: string;
   adminLinks: Array<AdminLink> | null | undefined;
 };
-export default function Avatar({
-  gitHub,
-  adminLinks: extraAdminLinks
-}: Props) {
+export default function Avatar({ gitHub, adminLinks: extraAdminLinks }: Props) {
   const ref = React.useRef();
-  const {
-    loginStatus,
-    logout,
-    login
-  } = React.useContext(UserContext);
+  const { loginStatus, logout, login } = React.useContext(UserContext);
   const [showOptions, setShowOptions] = React.useState(false);
-  const data: Avatar_gitHub$data = useFragment(graphql`
+  const data: Avatar_gitHub$data = useFragment(
+    graphql`
       fragment Avatar_gitHub on GitHubQuery
       @argumentDefinitions(
-        repoName: {type: "String!"}
-        repoOwner: {type: "String!"}
+        repoName: { type: "String!" }
+        repoOwner: { type: "String!" }
       ) {
         viewer {
           login
@@ -69,68 +81,134 @@ export default function Avatar({
           viewerCanAdminister
         }
       }
-    `, gitHub);
+    `,
+    gitHub,
+  );
 
-  if (loginStatus === 'checking' || loginStatus === 'error') {
+  if (loginStatus === "checking" || loginStatus === "error") {
     return null;
   }
 
   const viewer = data.viewer;
-  const adminLinks = [{
-    href: newIssueUrl(),
-    label: 'Create New Post',
-    icon: <Github size="16px" />
-  }].concat(extraAdminLinks || []);
+  const adminLinks = [
+    {
+      href: newIssueUrl(),
+      label: "Create New Post",
+      icon: <Github size="16px" />,
+    },
+  ].concat(extraAdminLinks || []);
   const isAdmin = checkIsAdmin(loginStatus, data.repository);
-  return <>
-      {loginStatus === 'logged-in' ? <Box align="center" justify="center" onClick={() => setShowOptions(!showOptions)} ref={ref} round="xsmall" style={{
-      height: 32,
-      width: 32,
-      overflow: 'hidden',
-      cursor: 'pointer'
-    }}>
-          <Image style={{
-        height: 32,
-        width: 32
-      }} fit="contain" src={imageUrl({
-        src: String(viewer.avatarUrl)
-      })} />
-        </Box> : <Button plain onClick={() => login()} label={<Text size="xsmall" color="dark-5">
+  return (
+    <>
+      {loginStatus === "logged-in" ? (
+        <Box
+          align="center"
+          justify="center"
+          onClick={() => setShowOptions(!showOptions)}
+          ref={ref}
+          round="xsmall"
+          style={{
+            height: 32,
+            width: 32,
+            overflow: "hidden",
+            cursor: "pointer",
+          }}>
+          <Image
+            style={{
+              height: 32,
+              width: 32,
+            }}
+            fit="contain"
+            src={imageUrl({
+              src: String(viewer.avatarUrl),
+            })}
+          />
+        </Box>
+      ) : (
+        <Button
+          plain
+          onClick={() => login()}
+          label={
+            <Text size="xsmall" color="dark-5">
               Login
-            </Text>} />}
-      {ref.current && showOptions ? <Drop style={{
-      margin: 12,
-      paddingTop: 12,
-      paddingBottom: 12
-    }} align={{
-      top: 'bottom',
-      right: 'right'
-    }} target={ref.current} onClickOutside={() => setShowOptions(false)} onEsc={() => setShowOptions(false)}>
+            </Text>
+          }
+        />
+      )}
+      {ref.current && showOptions ? (
+        <Drop
+          style={{
+            margin: 12,
+            paddingTop: 12,
+            paddingBottom: 12,
+          }}
+          align={{
+            top: "bottom",
+            right: "right",
+          }}
+          target={ref.current}
+          onClickOutside={() => setShowOptions(false)}
+          onEsc={() => setShowOptions(false)}>
           <Box align="start">
-            {loginStatus === 'logged-in' ? <>
-                {isAdmin ? adminLinks.map(({
-            href,
-            label,
-            icon
-          }) => <Button key={href} href={href} target="_blank" fill="horizontal" alignSelf="start" style={{
-          // }) => <Button key={href} href={href} target="_blank" rel="noreferrer noopener" fill="horizontal" alignSelf="start" style={{
-            padding: 12,
-            display: 'flex'
-          }} plain hoverIndicator="accent-4" label={<Text size="small">{label}</Text>} icon={icon} />) : null}
-                <Button fill="horizontal" alignSelf="start" style={{
-            padding: 12,
-            display: 'flex'
-          }} plain hoverIndicator="accent-4" onClick={() => {
-            logout();
-            setShowOptions(false);
-          }} label={<Text size="small">Sign out</Text>} icon={<Logout size="16px" />} />
-              </> : <Button fill="horizontal" alignSelf="start" style={{
-          padding: 8,
-          display: 'flex'
-        }} plain hoverIndicator="accent-4" onClick={() => {
-          login();
-        }} icon={<Github size="16px" />} label={<Text size="small">Log in with GitHub</Text>} />}
+            {loginStatus === "logged-in" ? (
+              <>
+                {isAdmin
+                  ? adminLinks.map(({ href, label, icon }) => (
+                      <Button
+                        key={href}
+                        href={href}
+                        target="_blank"
+                        fill="horizontal"
+                        alignSelf="start"
+                        style={{
+                          // }) => <Button key={href} href={href} target="_blank" rel="noreferrer noopener" fill="horizontal" alignSelf="start" style={{
+                          padding: 12,
+                          display: "flex",
+                        }}
+                        plain
+                        hoverIndicator="accent-4"
+                        label={<Text size="small">{label}</Text>}
+                        icon={icon}
+                      />
+                    ))
+                  : null}
+                <Button
+                  fill="horizontal"
+                  alignSelf="start"
+                  style={{
+                    padding: 12,
+                    display: "flex",
+                  }}
+                  plain
+                  hoverIndicator="accent-4"
+                  onClick={() => {
+                    logout();
+                    setShowOptions(false);
+                  }}
+                  label={<Text size="small">Sign out</Text>}
+                  icon={<Logout size="16px" />}
+                />
+              </>
+            ) : (
+              <Button
+                fill="horizontal"
+                alignSelf="start"
+                style={{
+                  padding: 8,
+                  display: "flex",
+                }}
+                plain
+                hoverIndicator="accent-4"
+                onClick={() => {
+                  login();
+                }}
+                icon={<Github size="16px" />}
+                label={<Text size="small">Log in with GitHub</Text>}
+              />
+            )}
           </Box>
-        </Drop> : null}
-    </>;
+        </Drop>
+      ) : null}
+    </>
+  );
 }

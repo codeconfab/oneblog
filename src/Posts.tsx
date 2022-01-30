@@ -15,18 +15,15 @@ type Props = {
 };
 
 // TODO: pagination. Can do pages or infinite scroll
-const Posts = ({
-  relay,
-  repository
-}: Props) => {
+const Posts = ({ relay, repository }: Props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [inViewRef, inView] = useInView({
-    threshold: 0
+    threshold: 0,
   });
   React.useEffect(() => {
     if (inView && !isLoading && !relay.isLoading() && relay.hasMore()) {
       setIsLoading(true);
-      relay.loadMore(10, x => {
+      relay.loadMore(10, (x) => {
         setIsLoading(false);
       });
     }
@@ -41,32 +38,47 @@ const Posts = ({
 
   const isClientFetched = repository.issues.isClientFetched;
 
-  if (issues.length === 0 && // Take extra care to only show this if there really are no posts
-  isClientFetched) {
+  if (
+    issues.length === 0 && // Take extra care to only show this if there really are no posts
+    isClientFetched
+  ) {
     return <Welcome key="welcome" />;
   }
 
-  return <Box key="content">
-      {issues.map((node, i) => <div ref={!isLoading && i === issues.length - 1 ? inViewRef : null} key={node.id}>
+  return (
+    <Box key="content">
+      {issues.map((node, i) => (
+        <div
+          ref={!isLoading && i === issues.length - 1 ? inViewRef : null}
+          key={node.id}>
           <Post context="list" post={node} />
-        </div>)}
-      {isLoading ? <Box align="center" margin="medium" style={{
-      maxWidth: 704
-    }}>
+        </div>
+      ))}
+      {isLoading ? (
+        <Box
+          align="center"
+          margin="medium"
+          style={{
+            maxWidth: 704,
+          }}>
           <LoadingSpinner width="48px" height="48px" />
-        </Box> : null}
-    </Box>;
+        </Box>
+      ) : null}
+    </Box>
+  );
 };
 
-export default createPaginationContainer(Posts, {
-  repository: graphql`
+export default createPaginationContainer(
+  Posts,
+  {
+    repository: graphql`
       fragment Posts_repository on GitHubRepository
       @argumentDefinitions(
-        count: {type: "Int", defaultValue: 10}
-        cursor: {type: "String"}
+        count: { type: "Int", defaultValue: 10 }
+        cursor: { type: "String" }
         orderBy: {
           type: "GitHubIssueOrder"
-          defaultValue: {direction: DESC, field: CREATED_AT}
+          defaultValue: { direction: DESC, field: CREATED_AT }
         }
       ) {
         issues(
@@ -84,26 +96,24 @@ export default createPaginationContainer(Posts, {
           }
         }
       }
-    `
-}, {
-  direction: 'forward',
-
-  getConnectionFromProps(props) {
-    return props.repository && props.repository.issues;
+    `,
   },
+  {
+    direction: "forward",
 
-  getVariables(props, {
-    count,
-    cursor
-  }, fragmentVariables) {
-    return {
-      count: count,
-      cursor,
-      orderBy: fragmentVariables.orderBy
-    };
-  },
+    getConnectionFromProps(props) {
+      return props.repository && props.repository.issues;
+    },
 
-  query: graphql`
+    getVariables(props, { count, cursor }, fragmentVariables) {
+      return {
+        count: count,
+        cursor,
+        orderBy: fragmentVariables.orderBy,
+      };
+    },
+
+    query: graphql`
       # repoName and repoOwner provided by fixedVariables
       query PostsPaginationQuery(
         $count: Int!
@@ -113,9 +123,9 @@ export default createPaginationContainer(Posts, {
         $repoName: String!
       )
       @persistedQueryConfiguration(
-        accessToken: {environmentVariable: "OG_GITHUB_TOKEN"}
+        accessToken: { environmentVariable: "OG_GITHUB_TOKEN" }
         freeVariables: ["count", "cursor", "orderBy"]
-        fixedVariables: {environmentVariable: "REPOSITORY_FIXED_VARIABLES"}
+        fixedVariables: { environmentVariable: "REPOSITORY_FIXED_VARIABLES" }
         cacheSeconds: 300
       ) {
         gitHub {
@@ -126,5 +136,6 @@ export default createPaginationContainer(Posts, {
           }
         }
       }
-    `
-});
+    `,
+  },
+);

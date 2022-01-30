@@ -13,10 +13,9 @@ import imageUrl from "./imageUrl";
 type Props = {
   comment: Comment_comment$key;
 };
-export default function Comment({
-  comment
-}: Props) {
-  const data = useFragment(graphql`
+export default function Comment({ comment }: Props) {
+  const data = useFragment(
+    graphql`
       fragment Comment_comment on GitHubIssueComment {
         id
         body @__clientField(handle: "registerMarkdown")
@@ -59,37 +58,56 @@ export default function Comment({
           }
         }
       }
-    `, comment);
-  const source = data.createdViaEmail ? new EmailReplyParser().read(data.body).getVisibleText() : data.body;
-  return <PostBox key={data.id}>
-      <Box pad={{
-      left: 'small'
-    }} direction="row" align="center" gap="xsmall">
-        <img alt="Author" width={24} height={24} style={{
-        borderRadius: '50%'
-      }} src={imageUrl({
-        src: data.author?.avatarUrl
-      })} />
+    `,
+    comment,
+  );
+  const source = data.createdViaEmail
+    ? new EmailReplyParser().read(data.body).getVisibleText()
+    : data.body;
+  return (
+    <PostBox key={data.id}>
+      <Box
+        pad={{
+          left: "small",
+        }}
+        direction="row"
+        align="center"
+        gap="xsmall">
+        <img
+          alt="Author"
+          width={24}
+          height={24}
+          style={{
+            borderRadius: "50%",
+          }}
+          src={imageUrl({
+            src: data.author?.avatarUrl,
+          })}
+        />
         <Text size="xsmall">
-          {
-          /* eslint-disable-next-line jsx-a11y/anchor-is-valid */
-        }
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <a href={data.author?.url}>
             {data.author?.name || data.author?.login}
-          </a>{' '}
-          commented{' '}
-          <span title={format(new Date(data.createdAt), 'PPP, pp')}>
+          </a>{" "}
+          commented{" "}
+          <span title={format(new Date(data.createdAt), "PPP, pp")}>
             {formatDistance(new Date(), new Date(data.createdAt))} ago
           </span>
         </Text>
       </Box>
-      <Box pad={{
-      horizontal: 'small'
-    }}>
+      <Box
+        pad={{
+          horizontal: "small",
+        }}>
         <Text>
           <MarkdownRenderer trustedInput={false} source={source} />
         </Text>
       </Box>
-      <ReactionBar pad="none" reactionGroups={data.reactionGroups} subjectId={data.id} />
-    </PostBox>;
+      <ReactionBar
+        pad="none"
+        reactionGroups={data.reactionGroups}
+        subjectId={data.id}
+      />
+    </PostBox>
+  );
 }
