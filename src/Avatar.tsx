@@ -40,6 +40,7 @@ type AdminLink = {
 };
 type Props = {
   gitHub: Avatar_gitHub$key;
+  background: string;
   adminLinks: Array<AdminLink> | null | undefined;
 };
 export default function Avatar({
@@ -92,7 +93,7 @@ export default function Avatar({
         height: 32,
         width: 32
       }} fit="contain" src={imageUrl({
-        src: viewer.avatarUrl
+        src: String(viewer.avatarUrl)
       })} />
         </Box> : <Button plain onClick={() => login()} label={<Text size="xsmall" color="dark-5">
               Login
@@ -111,7 +112,8 @@ export default function Avatar({
             href,
             label,
             icon
-          }) => <Button key={href} href={href} target="_blank" rel="noreferrer noopener" fill="horizontal" alignSelf="start" style={{
+          }) => <Button key={href} href={href} target="_blank" fill="horizontal" alignSelf="start" style={{
+          // }) => <Button key={href} href={href} target="_blank" rel="noreferrer noopener" fill="horizontal" alignSelf="start" style={{
             padding: 12,
             display: 'flex'
           }} plain hoverIndicator="accent-4" label={<Text size="small">{label}</Text>} icon={icon} />) : null}

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import config from "../config";
 // https://developers.google.com/analytics/devguides/collection/gtagjs/pages
 export const pageview = (url: string) => {

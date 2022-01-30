@@ -2,7 +2,7 @@ import React from "react";
 import { Environment, Network, RecordSource, Store, DefaultHandlerProvider, stableCopy } from "relay-runtime";
 import config from "./config";
 import OneGraphAuth from "onegraph-auth";
-import type { RecordMap, Handler } from "relay-runtime/store/RelayStoreTypes";
+import type { RecordMap, Handler } from "relay-runtime/lib/store/RelayStoreTypes";
 import type { NotificationContextType } from "./Notifications";
 
 class AuthDummy {
@@ -126,6 +126,7 @@ function createFetchQuery(opts: Opts | null | undefined) {
         onegraphAuth.destroy();
         const newJson = await sendRequest({
           onegraphAuth,
+          // @ts-ignore
           headers: {},
           operation,
           variables
@@ -221,6 +222,7 @@ export function initEnvironment(initialRecords: RecordMap | null | undefined, op
   }
 
   if (typeof window !== 'undefined') {
+    // @ts-ignore
     window._env = environment;
     globalEnvironment = environment;
   }

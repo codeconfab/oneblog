@@ -15,12 +15,17 @@ function ConcatFrames(callback) {
 
   if (concatFrames instanceof ConcatFrames) {
     PixelStream.call(concatFrames);
+    // @ts-ignore
     concatFrames.frame = null;
+    // @ts-ignore
     concatFrames.buffers = [];
+    // @ts-ignore
     concatFrames.callback = callback;
     // put the stream in flowing mode
+    // @ts-ignore
     concatFrames.resume();
   } else {
+    // @ts-ignore
     return new ConcatFrames(callback);
   }
 }
@@ -178,6 +183,7 @@ export const proxyImage = (res: any, url: URL): any => {
         });
         resp.on('end', () => {
           res.end();
+          // @ts-ignore
           resolve();
         });
       }

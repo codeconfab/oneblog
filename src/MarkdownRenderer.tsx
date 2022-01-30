@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import htmlParser from "react-markdown/plugins/html-parser";
@@ -19,14 +20,14 @@ import Tippy from "@tippyjs/react";
 import { slugify } from "./Post";
 import ConfigContext from "./ConfigContext";
 import type { TokenInfo } from "./lib/codeHighlight";
-import type { StatelessFunctionalComponent, Node } from "react";
+import type { SFC, ReactNode } from "react";
 type Props = {
   source: string;
   trustedInput: boolean;
   addHeadingIds?: boolean | null | undefined;
-  HashLink?: StatelessFunctionalComponent<{
+  HashLink?: SFC<{
     hash: string;
-    children?: Node;
+    children?: ReactNode;
   }>;
 };
 type CodeBlockProps = {
@@ -46,6 +47,7 @@ export class CodeBlock extends React.PureComponent<CodeBlockProps, {
   };
   _updateTokenInfo = (tokenInfo: TokenInfo | Promise<TokenInfo>) => {
     if (isPromise(tokenInfo)) {
+      // @ts-ignore
       tokenInfo.then(res => {
         this.setState(prevState => {
           if (prevState.tokenInfo === tokenInfo) {
@@ -97,12 +99,15 @@ export class CodeBlock extends React.PureComponent<CodeBlockProps, {
         overflowX: 'auto',
         padding: '1em',
         borderRadius: 4,
+        // @ts-ignore
         color: tokenInfo.foregroundColor,
+        // @ts-ignore
         background: tokenInfo.backgroundColor
       }}>
           <code style={{
           padding: 0
         }}>
+            // @ts-ignore
             {tokenInfo.tokens.map((lineTokens, idx) => {
             return <React.Fragment key={idx}>
                   {lineTokens.map((token, tokenIdx) => <span key={tokenIdx} style={{
@@ -257,9 +262,9 @@ export function emojify(s: string): string {
 
   return emojified;
 }
-const HashLinkContext = React.createContext<StatelessFunctionalComponent<{
+const HashLinkContext = React.createContext<SFC<{
   hash: string;
-  children?: Node;
+  children?: ReactNode;
 }> | null | undefined>(null);
 
 function Link(props) {
@@ -314,9 +319,9 @@ const defaultRenderers = ({
 }: {
   isRss?: boolean | null | undefined;
   addHeadingIds?: boolean | null | undefined;
-  HashLink?: StatelessFunctionalComponent<{
+  HashLink?: SFC<{
     hash: string;
-    children?: Node;
+    children?: ReactNode;
   }> | null | undefined;
 }) => {
   const footnoteRefs = {};

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import * as React from "react";
 import graphql from "babel-plugin-relay/macro";
@@ -471,7 +472,7 @@ export const Post = ({
   const backmatter = React.useMemo(() => postBackmatter(post), [post]);
   const postDate = React.useMemo(() => computePostDate({
     backmatter,
-    createdAt: post.createdAt
+    createdAt: String(post.createdAt)
   }), [post]);
   const number = post.number;
   const {

@@ -72,6 +72,7 @@ function App({
     window.history.scrollRestoration = url === '/' ? 'manual' : 'auto';
 
     if (isIndexPage) {
+      // @ts-ignore
       indexPageScrollPos.current = window.scrollY;
     }
 

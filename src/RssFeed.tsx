@@ -97,6 +97,7 @@ export async function buildFeed({
     favicon: `${baseUrl}/favicon.ico`,
     updated: latestPost ? postDate(latestPost) : null,
     generator: '',
+    copyright: 'Code Confab',
     feedLinks: {
       json: `${baseUrl}/feed.json`,
       atom: `${baseUrl}/feed.atom`,
@@ -116,7 +117,7 @@ export async function buildFeed({
         content,
         author: (post.assignees.nodes || []).map(node => node ? {
           name: node.name,
-          link: node.url
+          link: String(node.url),
         } : null),
         date: postDate(post)
       });

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Version of https://github.com/streamich/react-embed that also renders on the server
 import React from "react";
 import ReactPlayer from "react-player/lazy";

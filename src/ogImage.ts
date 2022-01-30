@@ -110,6 +110,7 @@ function respondWithCodeImage(res, {
       });
       httpRes.on('end', () => {
         res.end();
+        // @ts-ignore
         resolve();
       });
     });

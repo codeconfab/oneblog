@@ -10,6 +10,7 @@ export type Config = {
   vercelUrl: string | null | undefined;
   codeTheme: string;
   displayImageTitleAsCaption: boolean;
+  hideAttribution: boolean | undefined;
 };
 
 function ensureEnv(s, variable: string): string {
