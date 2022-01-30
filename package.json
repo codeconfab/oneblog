@@ -60,6 +60,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.8.3",
     "@babel/preset-flow": "^7.0.0",
+    "@types/jest": "^27.4.0",
     "@types/react": "^17.0.38",
     "babel-eslint": "10.x",
     "babel-plugin-macros": "^2.6.1",
